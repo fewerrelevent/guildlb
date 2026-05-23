@@ -321,7 +321,11 @@
 
 <script>
 const STORAGE_KEY = 'ao_guild_tracker_v3';
-const PROXY = 'https://corsproxy.io/?url=';
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
 const SOURCE = 'https://leaderboards.arcaneodyssey.dev/guilds';
 
 let snapshots = [];
@@ -348,25 +352,32 @@ async function fetchNow() {
   btn.innerHTML = '<span class="spin">↻</span> Fetching…';
   setStatus('Fetching leaderboard…');
 
-  try {
-    const res = await fetch(PROXY + encodeURIComponent(SOURCE));
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const html = await res.text();
-    const guilds = parseHTML(html);
-    if (!guilds.length) throw new Error('No guilds parsed');
-    addSnapshot(guilds);
-    setStatus(`Last fetched: ${new Date().toLocaleTimeString()}`);
-    toast(`✓ Loaded ${guilds.length} guilds`);
-  } catch(err) {
-    console.warn('Fetch failed:', err);
-    // Fallback: load hardcoded baseline
+  let lastErr = null;
+  for (const proxyFn of PROXIES) {
+    try {
+      const res = await fetch(proxyFn(SOURCE));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const html = await res.text();
+      const guilds = parseHTML(html);
+      if (!guilds.length) throw new Error('No guilds parsed');
+      addSnapshot(guilds);
+      setStatus(`Last fetched: ${new Date().toLocaleTimeString()}`);
+      toast(`✓ Loaded ${guilds.length} guilds`);
+      lastErr = null;
+      break;
+    } catch(err) {
+      console.warn('Proxy failed:', err);
+      lastErr = err;
+    }
+  }
+  if (lastErr) {
     if (!snapshots.length) {
       addSnapshot(getBaseline());
-      setStatus(`Loaded cached baseline (live fetch failed)`);
+      setStatus(`Loaded cached baseline (all proxies failed)`);
       toast('⚠️ Live fetch failed — loaded cached baseline');
     } else {
-      setStatus(`Fetch failed: ${err.message}`);
-      toast('⚠️ Fetch failed — check console');
+      setStatus(`Fetch failed: ${lastErr.message}`);
+      toast('⚠️ All proxies failed — check console');
     }
   }
 
