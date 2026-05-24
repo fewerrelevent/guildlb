@@ -229,7 +229,36 @@
 
  /* Trend indicator on guild name */
  .trend-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
+
+ /* Modal */
+ .modal-overlay {
+ position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+ z-index: 200; display: flex; align-items: center; justify-content: center;
+ opacity: 0; pointer-events: none; transition: opacity 0.2s;
+ }
+ .modal-overlay.open { opacity: 1; pointer-events: all; }
+ .modal {
+ background: var(--surface); border: 1px solid var(--border2);
+ border-radius: var(--radius-lg); padding: 24px 28px;
+ width: min(700px, 95vw); max-height: 90vh; overflow-y: auto;
+ position: relative;
+ }
+ .modal-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+ .modal-title { font-size: 17px; font-weight: 600; }
+ .modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+ .modal-close {
+ background: none; border: none; color: var(--muted); font-size: 20px;
+ cursor: pointer; padding: 0 4px; line-height: 1;
+ }
+ .modal-close:hover { color: var(--text); }
+ .chart-wrap { width: 100%; height: 260px; position: relative; }
+ canvas#guild-chart { width: 100% !important; height: 100% !important; }
+ .modal-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 20px; }
+ .mstat { background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; }
+ .mstat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+ .mstat-value { font-size: 18px; font-weight: 600; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -317,6 +346,21 @@
  <span>Data source: <a href="https://leaderboards.arcaneodyssey.dev/guilds" target="_blank" style="color:var(--accent)">leaderboards.arcaneodyssey.dev</a></span>
  <span id="footer-time">—</span>
  </footer>
+</div>
+
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+ <div class="modal">
+ <div class="modal-header">
+ <span class="modal-title" id="modal-title"></span>
+ <button class="modal-close" onclick="closeModalDirect()">x</button>
+ </div>
+ <div class="modal-sub" id="modal-sub"></div>
+ <div class="chart-wrap">
+ <canvas id="guild-chart"></canvas>
+ </div>
+ <div class="modal-stats" id="modal-stats"></div>
+ </div>
 </div>
 
 <div id="toast"></div>
@@ -564,7 +608,7 @@ function renderTable() {
 
  return `<tr>
  <td class="${rankClass}">#${g.rank}</td>
- <td class="name-cell" title="${esc(g.name)}">${esc(g.name)}</td>
+ <td class="name-cell" title="${esc(g.name)}" style="cursor:pointer;" onclick='openModal(${JSON.stringify(g)})'>${esc(g.name)}</td>
  <td class="rep-cell">${fmtRep(g.rep)}</td>
  <td class="delta-cell">${repDeltaHtml}</td>
  <td class="rank-delta-cell">${rankDeltaHtml}</td>
@@ -606,6 +650,114 @@ function resetCountdown() {
  }, 1000);
 }
 
+
+
+// ── Modal / Chart ─────────────────────────────────────────
+let chartInstance = null;
+
+function getGuildHistory(g) {
+  // Returns [{ts, rep}, ...] across all snapshots
+  let lastRank = g.rank;
+  const result = [];
+  for (const s of snapshots) {
+    const key = g.name + '|' + g.abbr;
+    const candidates = s.guilds.filter(x => x.name + '|' + x.abbr === key);
+    if (!candidates.length) continue;
+    const best = candidates.reduce((a, b) => Math.abs(a.rank - lastRank) <= Math.abs(b.rank - lastRank) ? a : b);
+    lastRank = best.rank;
+    result.push({ ts: s.ts, rep: best.rep });
+  }
+  return result;
+}
+
+function openModal(g) {
+  const history = getGuildHistory(g);
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-title').textContent = g.name;
+
+  if (history.length < 2) {
+    document.getElementById('modal-sub').textContent = 'Not enough data yet — check back after more snapshots are collected.';
+    document.getElementById('modal-stats').innerHTML = '';
+    overlay.classList.add('open');
+    return;
+  }
+
+  const labels = history.map(h => new Date(h.ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }));
+  const data = history.map(h => h.rep);
+  const totalGain = data[data.length - 1] - data[0];
+  const from = new Date(history[0].ts).toLocaleDateString();
+  const to = new Date(history[history.length - 1].ts).toLocaleDateString();
+
+  document.getElementById('modal-sub').textContent = `${from} — ${to}  ·  ${history.length} snapshots`;
+
+  // Stats
+  const gains = [];
+  for (let i = 1; i < data.length; i++) gains.push(data[i] - data[i-1]);
+  const maxGain = Math.max(...gains);
+  const avgGain = gains.reduce((a,b)=>a+b,0) / gains.length;
+
+  document.getElementById('modal-stats').innerHTML = `
+    <div class="mstat"><div class="mstat-label">Total gained</div><div class="mstat-value" style="color:var(--green)">+${fmtRep(totalGain)}</div></div>
+    <div class="mstat"><div class="mstat-label">Current rep</div><div class="mstat-value">${fmtRep(g.rep)}</div></div>
+    <div class="mstat"><div class="mstat-label">Best single gain</div><div class="mstat-value" style="color:var(--accent)">+${fmtRep(maxGain)}</div></div>
+    <div class="mstat"><div class="mstat-label">Avg per snapshot</div><div class="mstat-value">+${fmtRep(Math.round(avgGain))}</div></div>
+    <div class="mstat"><div class="mstat-label">Current rank</div><div class="mstat-value">#${g.rank}</div></div>
+  `;
+
+  // Draw chart
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  const ctx = document.getElementById('guild-chart').getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Reputation',
+        data,
+        borderColor: '#6c8ef7',
+        backgroundColor: 'rgba(108,142,247,0.08)',
+        borderWidth: 2,
+        pointRadius: history.length > 30 ? 0 : 3,
+        pointHoverRadius: 5,
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + fmtRep(ctx.parsed.y) + ' rep'
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#7a8099', maxTicksLimit: 8, maxRotation: 0 },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        y: {
+          ticks: { color: '#7a8099', callback: v => fmtRep(v) },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        }
+      }
+    }
+  });
+
+  overlay.classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
 
 // ── Init ──────────────────────────────────────────────────
 load();
