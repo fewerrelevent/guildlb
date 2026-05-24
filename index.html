@@ -390,27 +390,46 @@ function addSnapshot(guilds) {
 }
 
 // ── Diff ──────────────────────────────────────────────────
-function guildKey(g) { return g.name + '|' + g.abbr; }
+
 
 function getDiffs() {
   if (!snapshots.length) return [];
   const curr = snapshots[snapshots.length - 1];
   const prev = snapshots.length > 1 ? snapshots[snapshots.length - 2] : null;
   if (!prev) return curr.guilds.map(g => ({ ...g, repDelta: null, rankDelta: null, isNew: false }));
-  const prevMap = {};
-  for (const g of prev.guilds) prevMap[guildKey(g)] = g;
+
+  // Group prev guilds by name|abbr
+  const prevGroups = {};
+  for (const g of prev.guilds) {
+    const k = g.name + '|'  + g.abbr;
+    if (!prevGroups[k]) prevGroups[k] = [];
+    prevGroups[k].push(g);
+  }
+
+  // For each current guild, find best prev match by name|abbr, breaking ties by closest rank
+  const used = new Set();
   return curr.guilds.map(g => {
-    const p = prevMap[guildKey(g)];
-    return { ...g, repDelta: p ? g.rep - p.rep : null, rankDelta: p ? p.rank - g.rank : null, isNew: !p };
+    const k = g.name + '|' + g.abbr;
+    const candidates = (prevGroups[k] || []).filter(c => !used.has(c.rank));
+    if (!candidates.length) return { ...g, repDelta: null, rankDelta: null, isNew: true };
+    // Pick the candidate with the closest rank to current
+    const best = candidates.reduce((a, b) => Math.abs(a.rank - g.rank) <= Math.abs(b.rank - g.rank) ? a : b);
+    used.add(best.rank);
+    return { ...g, repDelta: g.rep - best.rep, rankDelta: best.rank - g.rank, isNew: false };
   });
 }
 
-// History diff across ALL snapshots for sparklines
+// History diff across ALL snapshots for sparklines — match same way
 function getRepHistory(g) {
-  const key = guildKey(g);
+  let lastRank = g.rank;
   return snapshots.map(s => {
-    const found = s.guilds.find(x => guildKey(x) === key);
-    return found ? found.rep : null;
+    // Find closest rank match with same name|abbr
+    const key = g.name + '|' + g.abbr;
+    const candidates = s.guilds.filter(x => x.name + '|' + x.abbr === key);
+    if (!candidates.length) return null;
+    const best = candidates.reduce((a, b) => Math.abs(a.rank - lastRank) <= Math.abs(b.rank - lastRank) ? a : b);
+    lastRank = best.rank;
+    return best.rep;
   }).filter(v => v !== null);
 }
 
