@@ -87,7 +87,6 @@
  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
  .btn-primary { background: var(--accent); border-color: transparent; color: #fff; }
  .btn-primary:hover { background: #5a7ef5; }
- .btn-danger:hover { border-color: var(--red); color: var(--red); }
 
  /* Status bar */
  .status-bar {
@@ -249,8 +248,6 @@
  <div class="header-right">
  <span class="dot live" id="live-dot"></span>
  <button class="btn-primary" id="fetch-btn" onclick="fetchNow()">Fetch now</button>
- <button id="export-btn" onclick="exportCSV()" title="Export current view as CSV">CSV</button>
- <button class="btn-danger" onclick="clearHistory()" title="Clear all stored snapshots">Clear</button>
  </div>
  </header>
 
@@ -562,31 +559,7 @@ function setSort(key) {
  document.getElementById('sort-select').value = key === 'rank' ? 'rank' : key === 'rep_delta' ? 'rep_delta' : key === 'rank_delta' ? 'rank_delta' : key === 'rep' ? 'rep' : 'rank';
  renderTable();
 }
-function clearHistory() {
- if (!confirm('Clear all stored snapshots? This cannot be undone.')) return;
- snapshots = [];
- localStorage.removeItem(STORAGE_KEY);
- document.getElementById('guild-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">‍️</div><strong>History cleared</strong><p>Click "Fetch now" to start fresh.</p></div></td></tr>';
- document.getElementById('snapshot-label').textContent = '0 snapshots stored';
- 
- document.getElementById('sc-gainer').textContent = '—'; document.getElementById('sc-gainer-sub').textContent = 'need 2+ snapshots';
- document.getElementById('sc-climber').textContent = '—'; document.getElementById('sc-climber-sub').textContent = 'need 2+ snapshots';
- setStatus('History cleared');
- toast('History cleared');
-}
 
-function exportCSV() {
- if (!snapshots.length) { toast('No data to export'); return; }
- const diffs = getDiffs();
- const rows = [['Rank','Tag','Guild','Reputation','Rep Change','Rank Change']];
- diffs.forEach(g => rows.push([g.rank, g.abbr, g.name, g.rep, g.repDelta ?? '', g.rankDelta ?? '']));
- const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
- const a = document.createElement('a');
- a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
- a.download = `ao-guilds-${new Date().toISOString().slice(0,10)}.csv`;
- a.click();
- toast('CSV exported');
-}
 
 // ── Countdown ─────────────────────────────────────────────
 function resetCountdown() {
