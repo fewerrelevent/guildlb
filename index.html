@@ -414,18 +414,23 @@ function getSnapshotPair() {
   if (!snapshots.length) return null;
   const curr = snapshots[snapshots.length - 1];
   const days = getSelectedDays();
-  const cutoff = days === 0
-    ? snapshots[0].ts  // all time: use oldest
-    : curr.ts - days * 24 * 60 * 60 * 1000;
-  const prev = getSnapshotNear(cutoff);
-  const hasDiff = prev && prev.ts !== curr.ts;
-  if (!hasDiff && days !== 0) {
-    // Not enough data for selected range — fall back to all-time (oldest snapshot)
-    const oldest = snapshots[0];
-    const allTimeDiff = oldest.ts !== curr.ts;
-    return { curr, prev: allTimeDiff ? oldest : null, fellBack: true };
+  const oldest = snapshots[0];
+
+  // All time: always use oldest snapshot
+  if (days === 0) {
+    return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: false };
   }
-  return { curr, prev: hasDiff ? prev : null, fellBack: false };
+
+  const cutoff = curr.ts - days * 24 * 60 * 60 * 1000;
+
+  // If our oldest snapshot isn't old enough for the selected range, fall back to all-time
+  if (oldest.ts > cutoff) {
+    return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: true };
+  }
+
+  // We have enough data — find the snapshot closest to the cutoff
+  const prev = getSnapshotNear(cutoff);
+  return { curr, prev, fellBack: false };
 }
 
 function diffSnapshots(curr, prev) {
