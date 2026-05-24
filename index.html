@@ -5,316 +5,316 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AO Guild Tracker</title>
 <style>
-  :root {
-    --bg: #0d0f14;
-    --surface: #151820;
-    --surface2: #1c2030;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #e8eaf0;
-    --muted: #7a8099;
-    --dim: #454d66;
-    --accent: #6c8ef7;
-    --accent-dim: rgba(108,142,247,0.12);
-    --green: #4ade80;
-    --green-dim: rgba(74,222,128,0.12);
-    --red: #f87171;
-    --red-dim: rgba(248,113,113,0.12);
-    --amber: #fbbf24;
-    --gold: #f5c842;
-    --radius: 8px;
-    --radius-lg: 12px;
-  }
+ :root {
+ --bg: #0d0f14;
+ --surface: #151820;
+ --surface2: #1c2030;
+ --border: rgba(255,255,255,0.07);
+ --border2: rgba(255,255,255,0.13);
+ --text: #e8eaf0;
+ --muted: #7a8099;
+ --dim: #454d66;
+ --accent: #6c8ef7;
+ --accent-dim: rgba(108,142,247,0.12);
+ --green: #4ade80;
+ --green-dim: rgba(74,222,128,0.12);
+ --red: #f87171;
+ --red-dim: rgba(248,113,113,0.12);
+ --amber: #fbbf24;
+ --gold: #f5c842;
+ --radius: 8px;
+ --radius-lg: 12px;
+ }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    font-size: 14px;
-    min-height: 100vh;
-  }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+ font-size: 14px;
+ min-height: 100vh;
+ }
 
-  /* Background grid texture */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(108,142,247,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(108,142,247,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+ /* Background grid texture */
+ body::before {
+ content: '';
+ position: fixed;
+ inset: 0;
+ background-image:
+ linear-gradient(rgba(108,142,247,0.03) 1px, transparent 1px),
+ linear-gradient(90deg, rgba(108,142,247,0.03) 1px, transparent 1px);
+ background-size: 40px 40px;
+ pointer-events: none;
+ z-index: 0;
+ }
 
-  .page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+ .page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-  /* Header */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .header-left { display: flex; align-items: center; gap: 14px; }
-  .logo {
-    width: 42px; height: 42px; border-radius: var(--radius);
-    background: linear-gradient(135deg, #2a3a7a, #4a5fb5);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; border: 1px solid rgba(108,142,247,0.3);
-  }
-  h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
-  h1 span { color: var(--accent); }
-  .subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+ /* Header */
+ header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ flex-wrap: wrap;
+ gap: 1rem;
+ margin-bottom: 2rem;
+ padding-bottom: 1.5rem;
+ border-bottom: 1px solid var(--border);
+ }
+ .header-left { display: flex; align-items: center; gap: 14px; }
+ .logo {
+ width: 42px; height: 42px; border-radius: var(--radius);
+ background: linear-gradient(135deg, #2a3a7a, #4a5fb5);
+ display: flex; align-items: center; justify-content: center;
+ font-size: 20px; border: 1px solid rgba(108,142,247,0.3);
+ }
+ h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+ h1 span { color: var(--accent); }
+ .subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+ .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-  /* Buttons */
-  button {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 14px; border-radius: var(--radius);
-    font-size: 13px; font-weight: 500; cursor: pointer;
-    border: 1px solid var(--border2); background: var(--surface2);
-    color: var(--text); transition: all 0.15s;
-  }
-  button:hover { background: var(--surface); border-color: rgba(255,255,255,0.2); }
-  button:active { transform: scale(0.97); }
-  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-  .btn-primary { background: var(--accent); border-color: transparent; color: #fff; }
-  .btn-primary:hover { background: #5a7ef5; }
-  .btn-danger:hover { border-color: var(--red); color: var(--red); }
+ /* Buttons */
+ button {
+ display: inline-flex; align-items: center; gap: 6px;
+ padding: 7px 14px; border-radius: var(--radius);
+ font-size: 13px; font-weight: 500; cursor: pointer;
+ border: 1px solid var(--border2); background: var(--surface2);
+ color: var(--text); transition: all 0.15s;
+ }
+ button:hover { background: var(--surface); border-color: rgba(255,255,255,0.2); }
+ button:active { transform: scale(0.97); }
+ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+ .btn-primary { background: var(--accent); border-color: transparent; color: #fff; }
+ .btn-primary:hover { background: #5a7ef5; }
+ .btn-danger:hover { border-color: var(--red); color: var(--red); }
 
-  /* Status bar */
-  .status-bar {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px; color: var(--muted);
-    margin-bottom: 1.5rem; flex-wrap: wrap;
-  }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); display: inline-block; }
-  .dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
-  .sep { color: var(--dim); }
+ /* Status bar */
+ .status-bar {
+ display: flex; align-items: center; gap: 8px;
+ font-size: 12px; color: var(--muted);
+ margin-bottom: 1.5rem; flex-wrap: wrap;
+ }
+ .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); display: inline-block; }
+ .dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+ @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
+ .sep { color: var(--dim); }
 
-  /* Summary cards */
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-    margin-bottom: 1.5rem;
-  }
-  .scard {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 14px 16px;
-    transition: border-color 0.2s;
-  }
-  .scard:hover { border-color: var(--border2); }
-  .scard-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-  .scard-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); }
-  .scard-sub { font-size: 11px; color: var(--muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .scard-value.green { color: var(--green); }
-  .scard-value.red { color: var(--red); }
-  .scard-value.gold { color: var(--gold); }
+ /* Summary cards */
+ .summary-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+ gap: 10px;
+ margin-bottom: 1.5rem;
+ }
+ .scard {
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: var(--radius-lg);
+ padding: 14px 16px;
+ transition: border-color 0.2s;
+ }
+ .scard:hover { border-color: var(--border2); }
+ .scard-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+ .scard-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); }
+ .scard-sub { font-size: 11px; color: var(--muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ .scard-value.green { color: var(--green); }
+ .scard-value.red { color: var(--red); }
+ .scard-value.gold { color: var(--gold); }
 
-  /* Filter row */
-  .filter-row {
-    display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;
-  }
-  .filter-row input, .filter-row select {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    border-radius: var(--radius);
-    padding: 7px 11px;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .filter-row input { width: 220px; }
-  .filter-row input:focus, .filter-row select:focus { border-color: var(--accent); }
-  .filter-row input::placeholder { color: var(--dim); }
-  .filter-row select option { background: #1c2030; }
+ /* Filter row */
+ .filter-row {
+ display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;
+ }
+ .filter-row input, .filter-row select {
+ background: var(--surface);
+ border: 1px solid var(--border2);
+ color: var(--text);
+ border-radius: var(--radius);
+ padding: 7px 11px;
+ font-size: 13px;
+ outline: none;
+ transition: border-color 0.15s;
+ }
+ .filter-row input { width: 220px; }
+ .filter-row input:focus, .filter-row select:focus { border-color: var(--accent); }
+ .filter-row input::placeholder { color: var(--dim); }
+ .filter-row select option { background: #1c2030; }
 
-  /* Table */
-  .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-  }
-  .table-scroll { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    font-size: 11px; font-weight: 500; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    padding: 10px 14px; text-align: left;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap; cursor: pointer; user-select: none;
-    transition: color 0.15s;
-  }
-  thead th:hover { color: var(--text); }
-  thead th.sorted { color: var(--accent); }
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.1s;
-  }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--surface2); }
-  tbody td { padding: 9px 14px; vertical-align: middle; }
+ /* Table */
+ .table-wrap {
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: var(--radius-lg);
+ overflow: hidden;
+ }
+ .table-scroll { overflow-x: auto; }
+ table { width: 100%; border-collapse: collapse; }
+ thead th {
+ font-size: 11px; font-weight: 500; color: var(--muted);
+ text-transform: uppercase; letter-spacing: 0.05em;
+ padding: 10px 14px; text-align: left;
+ background: var(--surface2);
+ border-bottom: 1px solid var(--border);
+ white-space: nowrap; cursor: pointer; user-select: none;
+ transition: color 0.15s;
+ }
+ thead th:hover { color: var(--text); }
+ thead th.sorted { color: var(--accent); }
+ tbody tr {
+ border-bottom: 1px solid var(--border);
+ transition: background 0.1s;
+ }
+ tbody tr:last-child { border-bottom: none; }
+ tbody tr:hover { background: var(--surface2); }
+ tbody td { padding: 9px 14px; vertical-align: middle; }
 
-  .rank-num { font-size: 13px; font-weight: 600; color: var(--muted); width: 50px; }
-  .rank-num.top3 { color: var(--gold); }
-  .tag-cell {
-    font-size: 11px; font-weight: 600; color: var(--accent);
-    background: var(--accent-dim); border-radius: 4px;
-    padding: 2px 7px; display: inline-block;
-    letter-spacing: 0.03em; white-space: nowrap;
-  }
-  .name-cell { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
-  .rep-cell { font-variant-numeric: tabular-nums; color: var(--text); text-align: right; white-space: nowrap; }
-  .delta-cell { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .rank-delta-cell { text-align: right; white-space: nowrap; }
+ .rank-num { font-size: 13px; font-weight: 600; color: var(--muted); width: 50px; }
+ .rank-num.top3 { color: var(--gold); }
+ .tag-cell {
+ font-size: 11px; font-weight: 600; color: var(--accent);
+ background: var(--accent-dim); border-radius: 4px;
+ padding: 2px 7px; display: inline-block;
+ letter-spacing: 0.03em; white-space: nowrap;
+ }
+ .name-cell { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+ .rep-cell { font-variant-numeric: tabular-nums; color: var(--text); text-align: right; white-space: nowrap; }
+ .delta-cell { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+ .rank-delta-cell { text-align: right; white-space: nowrap; }
 
-  .pos { color: var(--green); }
-  .neg { color: var(--red); }
-  .neutral { color: var(--dim); }
+ .pos { color: var(--green); }
+ .neg { color: var(--red); }
+ .neutral { color: var(--dim); }
 
-  .rank-up { color: var(--green); font-size: 12px; }
-  .rank-dn { color: var(--red); font-size: 12px; }
-  .rank-same { color: var(--dim); }
+ .rank-up { color: var(--green); font-size: 12px; }
+ .rank-dn { color: var(--red); font-size: 12px; }
+ .rank-same { color: var(--dim); }
 
-  .badge-new {
-    font-size: 10px; font-weight: 600; background: rgba(251,191,36,0.15);
-    color: var(--amber); border: 1px solid rgba(251,191,36,0.3);
-    padding: 2px 7px; border-radius: 4px; letter-spacing: 0.03em;
-  }
+ .badge-new {
+ font-size: 10px; font-weight: 600; background: rgba(251,191,36,0.15);
+ color: var(--amber); border: 1px solid rgba(251,191,36,0.3);
+ padding: 2px 7px; border-radius: 4px; letter-spacing: 0.03em;
+ }
 
-  /* Sparkline bars */
-  .sparkline { display: inline-flex; align-items: flex-end; gap: 2px; height: 16px; vertical-align: middle; margin-left: 6px; }
-  .spark-bar { width: 3px; border-radius: 1px; min-height: 2px; }
+ /* Sparkline bars */
+ .sparkline { display: inline-flex; align-items: flex-end; gap: 2px; height: 16px; vertical-align: middle; margin-left: 6px; }
+ .spark-bar { width: 3px; border-radius: 1px; min-height: 2px; }
 
-  /* Empty state */
-  .empty {
-    text-align: center; padding: 4rem 2rem;
-    color: var(--muted); font-size: 14px;
-  }
-  .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
-  .empty p { margin-top: 6px; font-size: 13px; }
+ /* Empty state */
+ .empty {
+ text-align: center; padding: 4rem 2rem;
+ color: var(--muted); font-size: 14px;
+ }
+ .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+ .empty p { margin-top: 6px; font-size: 13px; }
 
-  /* Footer */
-  footer {
-    margin-top: 2rem; padding-top: 1rem;
-    border-top: 1px solid var(--border);
-    font-size: 11px; color: var(--dim);
-    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-  }
+ /* Footer */
+ footer {
+ margin-top: 2rem; padding-top: 1rem;
+ border-top: 1px solid var(--border);
+ font-size: 11px; color: var(--dim);
+ display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+ }
 
-  /* Spinner */
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spin { display: inline-block; animation: spin 0.8s linear infinite; }
+ /* Spinner */
+ @keyframes spin { to { transform: rotate(360deg); } }
+ .spin { display: inline-block; animation: spin 0.8s linear infinite; }
 
-  /* Toast */
-  #toast {
-    position: fixed; bottom: 1.5rem; right: 1.5rem;
-    background: var(--surface2); border: 1px solid var(--border2);
-    border-radius: var(--radius); padding: 10px 16px;
-    font-size: 13px; color: var(--text);
-    opacity: 0; transform: translateY(8px);
-    transition: all 0.25s; pointer-events: none; z-index: 100;
-  }
-  #toast.show { opacity: 1; transform: translateY(0); }
+ /* Toast */
+ #toast {
+ position: fixed; bottom: 1.5rem; right: 1.5rem;
+ background: var(--surface2); border: 1px solid var(--border2);
+ border-radius: var(--radius); padding: 10px 16px;
+ font-size: 13px; color: var(--text);
+ opacity: 0; transform: translateY(8px);
+ transition: all 0.25s; pointer-events: none; z-index: 100;
+ }
+ #toast.show { opacity: 1; transform: translateY(0); }
 
-  /* Trend indicator on guild name */
-  .trend-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
+ /* Trend indicator on guild name */
+ .trend-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
 </style>
 </head>
 <body>
 
 <div class="page">
-  <header>
-    <div class="header-left">
-      <div class="logo">⚓</div>
-      <div>
-        <h1>Arcane Odyssey <span>Guild Tracker</span></h1>
-        <div class="subtitle">Reputation leaderboard • updated hourly via GitHub Actions</div>
-      </div>
-    </div>
-    <div class="header-right">
-      <span class="dot live" id="live-dot"></span>
-      <button class="btn-primary" id="fetch-btn" onclick="fetchNow()">↻ Fetch now</button>
-      <button id="export-btn" onclick="exportCSV()" title="Export current view as CSV">⬇ CSV</button>
-      <button class="btn-danger" onclick="clearHistory()" title="Clear all stored snapshots">🗑 Clear</button>
-    </div>
-  </header>
+ <header>
+ <div class="header-left">
+ <div class="logo"></div>
+ <div>
+ <h1>Arcane Odyssey <span>Guild Tracker</span></h1>
+ <div class="subtitle">Reputation leaderboard • updated hourly via GitHub Actions</div>
+ </div>
+ </div>
+ <div class="header-right">
+ <span class="dot live" id="live-dot"></span>
+ <button class="btn-primary" id="fetch-btn" onclick="fetchNow()">Fetch now</button>
+ <button id="export-btn" onclick="exportCSV()" title="Export current view as CSV">CSV</button>
+ <button class="btn-danger" onclick="clearHistory()" title="Clear all stored snapshots">Clear</button>
+ </div>
+ </header>
 
-  <div class="status-bar">
-    <span id="status-text">No data yet</span>
-    <span class="sep">·</span>
-    <span id="snapshot-label">0 snapshots stored</span>
-    <span class="sep">·</span>
-    <span id="next-refresh-label">Auto-refresh in 60:00</span>
-  </div>
+ <div class="status-bar">
+ <span id="status-text">No data yet</span>
+ <span class="sep">·</span>
+ <span id="snapshot-label">0 snapshots stored</span>
+ <span class="sep">·</span>
+ <span id="next-refresh-label">Auto-refresh in 60:00</span>
+ </div>
 
-  <div class="summary-grid" id="summary-grid">
+ <div class="summary-grid" id="summary-grid">
 
-    <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="sc-gainer">—</div><div class="scard-sub" id="sc-gainer-sub">need 2+ snapshots</div></div>
-    <div class="scard"><div class="scard-label">Biggest drop</div><div class="scard-value red" id="sc-dropper">—</div><div class="scard-sub" id="sc-dropper-sub">need 2+ snapshots</div></div>
-    <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="sc-climber">—</div><div class="scard-sub" id="sc-climber-sub">need 2+ snapshots</div></div>
-  </div>
+ <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="sc-gainer">—</div><div class="scard-sub" id="sc-gainer-sub">need 2+ snapshots</div></div>
 
-  <div class="filter-row">
-    <input type="text" id="search-input" placeholder="🔍  Search guild name or tag…" oninput="renderTable()">
-    <select id="sort-select" onchange="renderTable()">
-      <option value="rank">Sort: rank</option>
-      <option value="rep_delta">Sort: rep gain</option>
-      <option value="rank_delta">Sort: rank climb</option>
-      <option value="rep">Sort: total rep</option>
-    </select>
-    <select id="filter-select" onchange="renderTable()">
-      <option value="all">All guilds</option>
-      <option value="rising">Rising ↑ only</option>
-      <option value="falling">Falling ↓ only</option>
-      <option value="new">New entries</option>
-    </select>
-    <span id="row-count" style="font-size:12px;color:var(--muted);margin-left:4px;"></span>
-  </div>
+ <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="sc-climber">—</div><div class="scard-sub" id="sc-climber-sub">need 2+ snapshots</div></div>
+ </div>
 
-  <div class="table-wrap">
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th onclick="setSort('rank')" id="th-rank" class="sorted"># Rank</th>
-            <th onclick="setSort('name')">Guild</th>
-            <th onclick="setSort('rep')" id="th-rep" style="text-align:right">Reputation</th>
-            <th onclick="setSort('rep_delta')" id="th-rdelta" style="text-align:right">Rep change</th>
-            <th onclick="setSort('rank_delta')" id="th-rkdelta" style="text-align:right">Rank Δ</th>
-          </tr>
-        </thead>
-        <tbody id="guild-tbody">
-          <tr><td colspan="5">
-            <div class="empty">
-              <div class="empty-icon">🏴‍☠️</div>
-              <strong>No data loaded yet</strong>
-              <p>Click "Fetch now" to pull the latest leaderboard.</p>
-            </div>
-          </td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+ <div class="filter-row">
+ <input type="text" id="search-input" placeholder=" Search guild name or tag…" oninput="renderTable()">
+ <select id="sort-select" onchange="renderTable()">
+ <option value="rank">Sort: rank</option>
+ <option value="rep_delta">Sort: rep gain</option>
+ <option value="rank_delta">Sort: rank climb</option>
+ <option value="rep">Sort: total rep</option>
+ </select>
+ <select id="filter-select" onchange="renderTable()">
+ <option value="all">All guilds</option>
+ <option value="rising">Rising ↑ only</option>
+ <option value="falling">Falling ↓ only</option>
+ <option value="new">New entries</option>
+ </select>
+ <span id="row-count" style="font-size:12px;color:var(--muted);margin-left:4px;"></span>
+ </div>
 
-  <footer>
-    <span>Data source: <a href="https://leaderboards.arcaneodyssey.dev/guilds" target="_blank" style="color:var(--accent)">leaderboards.arcaneodyssey.dev</a></span>
-    <span id="footer-time">—</span>
-  </footer>
+ <div class="table-wrap">
+ <div class="table-scroll">
+ <table>
+ <thead>
+ <tr>
+ <th onclick="setSort('rank')" id="th-rank" class="sorted"># Rank</th>
+ <th onclick="setSort('name')">Guild</th>
+ <th onclick="setSort('rep')" id="th-rep" style="text-align:right">Reputation</th>
+ <th onclick="setSort('rep_delta')" id="th-rdelta" style="text-align:right">Rep change</th>
+ <th onclick="setSort('rank_delta')" id="th-rkdelta" style="text-align:right">Rank Δ</th>
+ </tr>
+ </thead>
+ <tbody id="guild-tbody">
+ <tr><td colspan="5">
+ <div class="empty">
+ <div class="empty-icon">‍️</div>
+ <strong>No data loaded yet</strong>
+ <p>Click "Fetch now" to pull the latest leaderboard.</p>
+ </div>
+ </td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
+
+ <footer>
+ <span>Data source: <a href="https://leaderboards.arcaneodyssey.dev/guilds" target="_blank" style="color:var(--accent)">leaderboards.arcaneodyssey.dev</a></span>
+ <span id="footer-time">—</span>
+ </footer>
 </div>
 
 <div id="toast"></div>
@@ -332,222 +332,218 @@ let secondsToRefresh = 3600;
 
 // ── Storage ──────────────────────────────────────────────
 function load() {
-  try { snapshots = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { snapshots = []; }
+ try { snapshots = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { snapshots = []; }
 }
 function save() {
-  // Keep last 48 snapshots (~2 days of hourly)
-  if (snapshots.length > 48) snapshots = snapshots.slice(-48);
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshots)); } catch(e) { toast('⚠️ Storage full — old snapshots may be dropped'); }
+ // Keep last 48 snapshots (~2 days of hourly)
+ if (snapshots.length > 48) snapshots = snapshots.slice(-48);
+ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshots)); } catch(e) { toast('Storage full — old snapshots may be dropped'); }
 }
 
 // ── Fetch & Parse ─────────────────────────────────────────
 async function fetchNow() {
-  const btn = document.getElementById('fetch-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin">↻</span> Loading…';
-  setStatus('Loading data.json…');
+ const btn = document.getElementById('fetch-btn');
+ btn.disabled = true;
+ btn.innerHTML = '<span class="spin">...</span> Loading…';
+ setStatus('Loading data.json…');
 
-  try {
-    const res = await fetch(DATA_URL + '?t=' + Date.now());
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (!data.snapshots || !data.snapshots.length) throw new Error('No snapshots in data.json');
+ try {
+ const res = await fetch(DATA_URL + '?t=' + Date.now());
+ if (!res.ok) throw new Error(`HTTP ${res.status}`);
+ const data = await res.json();
+ if (!data.snapshots || !data.snapshots.length) throw new Error('No snapshots in data.json');
 
-    // Merge remote snapshots into local, deduplicating by timestamp
-    const localTs = new Set(snapshots.map(s => s.ts));
-    let added = 0;
-    for (const snap of data.snapshots) {
-      if (!localTs.has(snap.ts)) {
-        snapshots.push(snap);
-        added++;
-      }
-    }
-    snapshots.sort((a, b) => a.ts - b.ts);
-    save();
-    updateAll();
+ // Merge remote snapshots into local, deduplicating by timestamp
+ const localTs = new Set(snapshots.map(s => s.ts));
+ let added = 0;
+ for (const snap of data.snapshots) {
+ if (!localTs.has(snap.ts)) {
+ snapshots.push(snap);
+ added++;
+ }
+ }
+ snapshots.sort((a, b) => a.ts - b.ts);
+ save();
+ updateAll();
 
-    const latest = new Date(snapshots[snapshots.length - 1].ts);
-    setStatus(`Data updated: ${latest.toLocaleString()}`);
-    toast(added > 0 ? `✓ Loaded ${added} new snapshot${added !== 1 ? 's' : ''}` : '✓ Already up to date');
-  } catch(err) {
-    console.warn('Load failed:', err);
-    setStatus(`Load failed: ${err.message}`);
-    toast('⚠️ Could not load data.json');
-  }
+ const latest = new Date(snapshots[snapshots.length - 1].ts);
+ setStatus(`Data updated: ${latest.toLocaleString()}`);
+ toast(added > 0 ? ` Loaded ${added} new snapshot${added !== 1 ? 's' : ''}` : ' Already up to date');
+ } catch(err) {
+ console.warn('Load failed:', err);
+ setStatus(`Load failed: ${err.message}`);
+ toast('️ Could not load data.json');
+ }
 
-  btn.disabled = false;
-  btn.innerHTML = '↻ Refresh';
-  resetCountdown();
+ btn.disabled = false;
+ btn.innerHTML = 'Refresh';
+ resetCountdown();
 }
 
 
 
 
 function addSnapshot(guilds) {
-  snapshots.push({ ts: Date.now(), guilds });
-  save();
-  updateAll();
+ snapshots.push({ ts: Date.now(), guilds });
+ save();
+ updateAll();
 }
 
 // ── Diff ──────────────────────────────────────────────────
 
 
 function getDiffs() {
-  if (!snapshots.length) return [];
-  const curr = snapshots[snapshots.length - 1];
-  const prev = snapshots.length > 1 ? snapshots[snapshots.length - 2] : null;
-  if (!prev) return curr.guilds.map(g => ({ ...g, repDelta: null, rankDelta: null, isNew: false }));
+ if (!snapshots.length) return [];
+ const curr = snapshots[snapshots.length - 1];
+ const prev = snapshots.length > 1 ? snapshots[snapshots.length - 2] : null;
+ if (!prev) return curr.guilds.map(g => ({ ...g, repDelta: null, rankDelta: null, isNew: false }));
 
-  // Group prev guilds by name|abbr
-  const prevGroups = {};
-  for (const g of prev.guilds) {
-    const k = g.name + '|'  + g.abbr;
-    if (!prevGroups[k]) prevGroups[k] = [];
-    prevGroups[k].push(g);
-  }
+ // Group prev guilds by name|abbr
+ const prevGroups = {};
+ for (const g of prev.guilds) {
+ const k = g.name + '|' + g.abbr;
+ if (!prevGroups[k]) prevGroups[k] = [];
+ prevGroups[k].push(g);
+ }
 
-  // For each current guild, find best prev match by name|abbr, breaking ties by closest rank
-  const used = new Set();
-  return curr.guilds.map(g => {
-    const k = g.name + '|' + g.abbr;
-    const candidates = (prevGroups[k] || []).filter(c => !used.has(c.rank));
-    if (!candidates.length) return { ...g, repDelta: null, rankDelta: null, isNew: true };
-    // Pick the candidate with the closest rank to current
-    const best = candidates.reduce((a, b) => Math.abs(a.rank - g.rank) <= Math.abs(b.rank - g.rank) ? a : b);
-    used.add(best.rank);
-    return { ...g, repDelta: g.rep - best.rep, rankDelta: best.rank - g.rank, isNew: false };
-  });
+ // For each current guild, find best prev match by name|abbr, breaking ties by closest rank
+ const used = new Set();
+ return curr.guilds.map(g => {
+ const k = g.name + '|' + g.abbr;
+ const candidates = (prevGroups[k] || []).filter(c => !used.has(c.rank));
+ if (!candidates.length) return { ...g, repDelta: null, rankDelta: null, isNew: true };
+ // Pick the candidate with the closest rank to current
+ const best = candidates.reduce((a, b) =>Math.abs(a.rank - g.rank) <= Math.abs(b.rank - g.rank) ? a : b);
+ used.add(best.rank);
+ return { ...g, repDelta: g.rep - best.rep, rankDelta: best.rank - g.rank, isNew: false };
+ });
 }
 
 // History diff across ALL snapshots for sparklines — match same way
 function getRepHistory(g) {
-  let lastRank = g.rank;
-  return snapshots.map(s => {
-    // Find closest rank match with same name|abbr
-    const key = g.name + '|' + g.abbr;
-    const candidates = s.guilds.filter(x => x.name + '|' + x.abbr === key);
-    if (!candidates.length) return null;
-    const best = candidates.reduce((a, b) => Math.abs(a.rank - lastRank) <= Math.abs(b.rank - lastRank) ? a : b);
-    lastRank = best.rank;
-    return best.rep;
-  }).filter(v => v !== null);
+ let lastRank = g.rank;
+ return snapshots.map(s => {
+ // Find closest rank match with same name|abbr
+ const key = g.name + '|' + g.abbr;
+ const candidates = s.guilds.filter(x => x.name + '|' + x.abbr === key);
+ if (!candidates.length) return null;
+ const best = candidates.reduce((a, b) =>Math.abs(a.rank - lastRank) <= Math.abs(b.rank - lastRank) ? a : b);
+ lastRank = best.rank;
+ return best.rep;
+ }).filter(v => v !== null);
 }
 
 // ── Render ────────────────────────────────────────────────
 function updateAll() {
-  updateSummary();
-  renderTable();
-  document.getElementById('snapshot-label').textContent = `${snapshots.length} snapshot${snapshots.length!==1?'s':''} stored`;
-  if (snapshots.length) {
-    const ts = new Date(snapshots[snapshots.length-1].ts);
-    document.getElementById('footer-time').textContent = `Snapshot: ${ts.toLocaleString()}`;
-  }
+ updateSummary();
+ renderTable();
+ document.getElementById('snapshot-label').textContent = `${snapshots.length} snapshot${snapshots.length!==1?'s':''} stored`;
+ if (snapshots.length) {
+ const ts = new Date(snapshots[snapshots.length-1].ts);
+ document.getElementById('footer-time').textContent = `Snapshot: ${ts.toLocaleString()}`;
+ }
 }
 
 function updateSummary() {
-  if (!snapshots.length) return;
-  const diffs = getDiffs();
-  const curr = snapshots[snapshots.length-1];
-  const total = curr.guilds.reduce((s,g) => s+g.rep, 0);
+ if (!snapshots.length) return;
+ const diffs = getDiffs();
+ const curr = snapshots[snapshots.length-1];
+ const total = curr.guilds.reduce((s,g) => s+g.rep, 0);
 
-  
+ 
 
-  const withDelta = diffs.filter(g => g.repDelta !== null);
-  if (withDelta.length) {
-    const gainer = withDelta.reduce((a,b) => b.repDelta>a.repDelta?b:a);
-    const dropper = withDelta.reduce((a,b) => b.repDelta<a.repDelta?b:a);
-    document.getElementById('sc-gainer').textContent = gainer.repDelta > 0 ? '+'+fmt(gainer.repDelta) : '—';
-    document.getElementById('sc-gainer-sub').textContent = gainer.repDelta > 0 ? gainer.name : 'no gains yet';
-    document.getElementById('sc-dropper').textContent = dropper.repDelta < 0 ? fmt(dropper.repDelta) : '—';
-    document.getElementById('sc-dropper-sub').textContent = dropper.repDelta < 0 ? dropper.name : 'no drops yet';
+ const withDelta = diffs.filter(g => g.repDelta !== null);
+ if (withDelta.length) {
+ const gainer = withDelta.reduce((a,b) => b.repDelta>a.repDelta?b:a);
+ document.getElementById('sc-gainer').textContent = gainer.repDelta > 0 ? '+'+fmt(gainer.repDelta) : '—';
+ document.getElementById('sc-gainer-sub').textContent = gainer.repDelta > 0 ? gainer.name : 'no gains yet';
 
-    const climber = withDelta.filter(g=>g.rankDelta!==null).reduce((a,b)=>(b.rankDelta||0)>(a.rankDelta||0)?b:a, {rankDelta:-999,name:''});
-    document.getElementById('sc-climber').textContent = climber.rankDelta > 0 ? '+'+climber.rankDelta : '—';
-    document.getElementById('sc-climber-sub').textContent = climber.rankDelta > 0 ? climber.name : 'no rank changes';
-  }
+ const climber = withDelta.filter(g=>g.rankDelta!==null).reduce((a,b)=>(b.rankDelta||0)>(a.rankDelta||0)?b:a, {rankDelta:-999,name:''});
+ document.getElementById('sc-climber').textContent = climber.rankDelta > 0 ? '+'+climber.rankDelta : '—';
+ document.getElementById('sc-climber-sub').textContent = climber.rankDelta > 0 ? climber.name : 'no rank changes';
+ }
 }
 
 function renderTable() {
-  if (!snapshots.length) return;
-  let rows = getDiffs();
+ if (!snapshots.length) return;
+ let rows = getDiffs();
 
-  // Search
-  const q = document.getElementById('search-input').value.toLowerCase();
-  if (q) rows = rows.filter(g => g.name.toLowerCase().includes(q) || g.abbr.toLowerCase().includes(q));
+ // Search
+ const q = document.getElementById('search-input').value.toLowerCase();
+ if (q) rows = rows.filter(g => g.name.toLowerCase().includes(q) || g.abbr.toLowerCase().includes(q));
 
-  // Filter
-  const f = document.getElementById('filter-select').value;
-  if (f === 'rising') rows = rows.filter(g => g.repDelta !== null && g.repDelta > 0);
-  else if (f === 'falling') rows = rows.filter(g => g.repDelta !== null && g.repDelta < 0);
-  else if (f === 'new') rows = rows.filter(g => g.isNew);
+ // Filter
+ const f = document.getElementById('filter-select').value;
+ if (f === 'rising') rows = rows.filter(g => g.repDelta !== null && g.repDelta > 0);
+ else if (f === 'falling') rows = rows.filter(g => g.repDelta !== null && g.repDelta < 0);
+ else if (f === 'new') rows = rows.filter(g => g.isNew);
 
-  // Sort
-  const sk = document.getElementById('sort-select').value;
-  const dir = sortAsc ? 1 : -1;
-  if (sk === 'rep_delta') rows.sort((a,b) => dir*((b.repDelta||0)-(a.repDelta||0)));
-  else if (sk === 'rank_delta') rows.sort((a,b) => dir*((b.rankDelta||0)-(a.rankDelta||0)));
-  else if (sk === 'rep') rows.sort((a,b) => dir*(b.rep-a.rep));
-  else if (sk === 'name') rows.sort((a,b) => dir*a.name.localeCompare(b.name));
-  else rows.sort((a,b) => a.rank-b.rank);
+ // Sort
+ const sk = document.getElementById('sort-select').value;
+ const dir = sortAsc ? 1 : -1;
+ if (sk === 'rep_delta') rows.sort((a,b) => dir*((b.repDelta||0)-(a.repDelta||0)));
+ else if (sk === 'rank_delta') rows.sort((a,b) => dir*((b.rankDelta||0)-(a.rankDelta||0)));
+ else if (sk === 'rep') rows.sort((a,b) => dir*(b.rep-a.rep));
+ else if (sk === 'name') rows.sort((a,b) => dir*a.name.localeCompare(b.name));
+ else rows.sort((a,b) => a.rank-b.rank);
 
-  document.getElementById('row-count').textContent = `${rows.length} guild${rows.length!==1?'s':''}`;
+ document.getElementById('row-count').textContent = `${rows.length} guild${rows.length!==1?'s':''}`;
 
-  const tbody = document.getElementById('guild-tbody');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">🔍</div><strong>No guilds match</strong><p>Try a different filter or search term.</p></div></td></tr>';
-    return;
-  }
+ const tbody = document.getElementById('guild-tbody');
+ if (!rows.length) {
+ tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon"></div><strong>No guilds match</strong><p>Try a different filter or search term.</p></div></td></tr>';
+ return;
+ }
 
-  tbody.innerHTML = rows.map(g => {
-    const isTop3 = g.rank <= 3;
-    const rankClass = isTop3 ? 'rank-num top3' : 'rank-num';
-    const medal = g.rank===1?'🥇':g.rank===2?'🥈':g.rank===3?'🥉':'';
+ tbody.innerHTML = rows.map(g => {
+ const isTop3 = g.rank <= 3;
+ const rankClass = isTop3 ? 'rank-num top3' : 'rank-num';
+ 
+ const repDeltaHtml = g.repDelta !== null
+ ? `<span class="${g.repDelta>0?'pos':g.repDelta<0?'neg':'neutral'}">${g.repDelta>0?'+':''}${fmt(g.repDelta)}</span>`
+ : `<span class="neutral">—</span>`;
 
-    const repDeltaHtml = g.repDelta !== null
-      ? `<span class="${g.repDelta>0?'pos':g.repDelta<0?'neg':'neutral'}">${g.repDelta>0?'+':''}${fmt(g.repDelta)}</span>`
-      : `<span class="neutral">—</span>`;
+ let rankDeltaHtml;
+ if (g.isNew) {
+ rankDeltaHtml = `<span class="badge-new">NEW</span>`;
+ } else if (g.rankDelta === null) {
+ rankDeltaHtml = `<span class="neutral">—</span>`;
+ } else if (g.rankDelta > 0) {
+ rankDeltaHtml = `<span class="rank-up">▲ ${g.rankDelta}</span>`;
+ } else if (g.rankDelta < 0) {
+ rankDeltaHtml = `<span class="rank-dn">▼ ${Math.abs(g.rankDelta)}</span>`;
+ } else {
+ rankDeltaHtml = `<span class="neutral">—</span>`;
+ }
 
-    let rankDeltaHtml;
-    if (g.isNew) {
-      rankDeltaHtml = `<span class="badge-new">NEW</span>`;
-    } else if (g.rankDelta === null) {
-      rankDeltaHtml = `<span class="neutral">—</span>`;
-    } else if (g.rankDelta > 0) {
-      rankDeltaHtml = `<span class="rank-up">▲ ${g.rankDelta}</span>`;
-    } else if (g.rankDelta < 0) {
-      rankDeltaHtml = `<span class="rank-dn">▼ ${Math.abs(g.rankDelta)}</span>`;
-    } else {
-      rankDeltaHtml = `<span class="neutral">—</span>`;
-    }
+ const history = getRepHistory(g);
+ const sparkHtml = history.length >= 2 ? buildSparkline(history) : '';
 
-    const history = getRepHistory(g);
-    const sparkHtml = history.length >= 2 ? buildSparkline(history) : '';
-
-    return `<tr>
-      <td class="${rankClass}">${medal}#${g.rank}</td>
-      <td class="name-cell" title="${esc(g.name)}">${esc(g.name)}${sparkHtml}</td>
-      <td class="rep-cell">${fmtRep(g.rep)}</td>
-      <td class="delta-cell">${repDeltaHtml}</td>
-      <td class="rank-delta-cell">${rankDeltaHtml}</td>
-    </tr>`;
-  }).join('');
+ return `<tr>
+ <td class="${rankClass}">#${g.rank}</td>
+ <td class="name-cell" title="${esc(g.name)}">${esc(g.name)}${sparkHtml}</td>
+ <td class="rep-cell">${fmtRep(g.rep)}</td>
+ <td class="delta-cell">${repDeltaHtml}</td>
+ <td class="rank-delta-cell">${rankDeltaHtml}</td>
+ </tr>`;
+ }).join('');
 }
 
 function buildSparkline(history) {
-  if (history.length < 2) return '';
-  const last6 = history.slice(-6);
-  const mn = Math.min(...last6), mx = Math.max(...last6);
-  const range = mx - mn || 1;
-  const bars = last6.map((v, i) => {
-    const h = Math.max(2, Math.round(((v-mn)/range)*14)+2);
-    const isLast = i === last6.length-1;
-    const prev = last6[i-1];
-    let color = '#454d66';
-    if (i > 0) color = v > prev ? '#4ade80' : v < prev ? '#f87171' : '#454d66';
-    if (isLast) color = v > (last6[last6.length-2]||v) ? '#4ade80' : v < (last6[last6.length-2]||v) ? '#f87171' : '#7a8099';
-    return `<span class="spark-bar" style="height:${h}px;background:${color};"></span>`;
-  }).join('');
-  return `<span class="sparkline" title="${last6.map(fmtRep).join(' → ')}">${bars}</span>`;
+ if (history.length < 2) return '';
+ const last6 = history.slice(-6);
+ const mn = Math.min(...last6), mx = Math.max(...last6);
+ const range = mx - mn || 1;
+ const bars = last6.map((v, i) => {
+ const h = Math.max(2, Math.round(((v-mn)/range)*14)+2);
+ const isLast = i === last6.length-1;
+ const prev = last6[i-1];
+ let color = '#454d66';
+ if (i > 0) color = v > prev ? '#4ade80' : v < prev ? '#f87171' : '#454d66';
+ if (isLast) color = v > (last6[last6.length-2]||v) ? '#4ade80' : v < (last6[last6.length-2]||v) ? '#f87171' : '#7a8099';
+ return `<span class="spark-bar" style="height:${h}px;background:${color};"></span>`;
+ }).join('');
+ return `<span class="sparkline" title="${last6.map(fmtRep).join(' → ')}">${bars}</span>`;
 }
 
 // ── Helpers ───────────────────────────────────────────────
@@ -556,64 +552,63 @@ function fmtRep(n) { return n >= 1e6 ? (n/1e6).toFixed(3)+'M' : n.toLocaleString
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function setStatus(t) { document.getElementById('status-text').textContent = t; }
 function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3000);
+ const el = document.getElementById('toast');
+ el.textContent = msg; el.classList.add('show');
+ setTimeout(() => el.classList.remove('show'), 3000);
 }
 function setSort(key) {
-  if (sortKey === key) sortAsc = !sortAsc;
-  else { sortKey = key; sortAsc = false; }
-  document.getElementById('sort-select').value = key === 'rank' ? 'rank' : key === 'rep_delta' ? 'rep_delta' : key === 'rank_delta' ? 'rank_delta' : key === 'rep' ? 'rep' : 'rank';
-  renderTable();
+ if (sortKey === key) sortAsc = !sortAsc;
+ else { sortKey = key; sortAsc = false; }
+ document.getElementById('sort-select').value = key === 'rank' ? 'rank' : key === 'rep_delta' ? 'rep_delta' : key === 'rank_delta' ? 'rank_delta' : key === 'rep' ? 'rep' : 'rank';
+ renderTable();
 }
 function clearHistory() {
-  if (!confirm('Clear all stored snapshots? This cannot be undone.')) return;
-  snapshots = [];
-  localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('guild-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🏴‍☠️</div><strong>History cleared</strong><p>Click "Fetch now" to start fresh.</p></div></td></tr>';
-  document.getElementById('snapshot-label').textContent = '0 snapshots stored';
-  
-  document.getElementById('sc-gainer').textContent = '—'; document.getElementById('sc-gainer-sub').textContent = 'need 2+ snapshots';
-  document.getElementById('sc-dropper').textContent = '—'; document.getElementById('sc-dropper-sub').textContent = 'need 2+ snapshots';
-  document.getElementById('sc-climber').textContent = '—'; document.getElementById('sc-climber-sub').textContent = 'need 2+ snapshots';
-  setStatus('History cleared');
-  toast('History cleared');
+ if (!confirm('Clear all stored snapshots? This cannot be undone.')) return;
+ snapshots = [];
+ localStorage.removeItem(STORAGE_KEY);
+ document.getElementById('guild-tbody').innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">‍️</div><strong>History cleared</strong><p>Click "Fetch now" to start fresh.</p></div></td></tr>';
+ document.getElementById('snapshot-label').textContent = '0 snapshots stored';
+ 
+ document.getElementById('sc-gainer').textContent = '—'; document.getElementById('sc-gainer-sub').textContent = 'need 2+ snapshots';
+ document.getElementById('sc-climber').textContent = '—'; document.getElementById('sc-climber-sub').textContent = 'need 2+ snapshots';
+ setStatus('History cleared');
+ toast('History cleared');
 }
 
 function exportCSV() {
-  if (!snapshots.length) { toast('No data to export'); return; }
-  const diffs = getDiffs();
-  const rows = [['Rank','Tag','Guild','Reputation','Rep Change','Rank Change']];
-  diffs.forEach(g => rows.push([g.rank, g.abbr, g.name, g.rep, g.repDelta ?? '', g.rankDelta ?? '']));
-  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = `ao-guilds-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  toast('CSV exported');
+ if (!snapshots.length) { toast('No data to export'); return; }
+ const diffs = getDiffs();
+ const rows = [['Rank','Tag','Guild','Reputation','Rep Change','Rank Change']];
+ diffs.forEach(g => rows.push([g.rank, g.abbr, g.name, g.rep, g.repDelta ?? '', g.rankDelta ?? '']));
+ const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+ const a = document.createElement('a');
+ a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+ a.download = `ao-guilds-${new Date().toISOString().slice(0,10)}.csv`;
+ a.click();
+ toast('CSV exported');
 }
 
 // ── Countdown ─────────────────────────────────────────────
 function resetCountdown() {
-  secondsToRefresh = 3600;
-  clearInterval(countdownInterval);
-  countdownInterval = setInterval(() => {
-    secondsToRefresh--;
-    const m = String(Math.floor(secondsToRefresh/60)).padStart(2,'0');
-    const s = String(secondsToRefresh%60).padStart(2,'0');
-    document.getElementById('next-refresh-label').textContent = `Auto-refresh in ${m}:${s}`;
-    if (secondsToRefresh <= 0) {
-      fetchNow();
-    }
-  }, 1000);
+ secondsToRefresh = 3600;
+ clearInterval(countdownInterval);
+ countdownInterval = setInterval(() => {
+ secondsToRefresh--;
+ const m = String(Math.floor(secondsToRefresh/60)).padStart(2,'0');
+ const s = String(secondsToRefresh%60).padStart(2,'0');
+ document.getElementById('next-refresh-label').textContent = `Auto-refresh in ${m}:${s}`;
+ if (secondsToRefresh <= 0) {
+ fetchNow();
+ }
+ }, 1000);
 }
 
 
 // ── Init ──────────────────────────────────────────────────
 load();
 if (snapshots.length) {
-  updateAll();
-  setStatus(`Last updated: ${new Date(snapshots[snapshots.length-1].ts).toLocaleString()}`);
+ updateAll();
+ setStatus(`Last updated: ${new Date(snapshots[snapshots.length-1].ts).toLocaleString()}`);
 }
 resetCountdown();
 fetchNow();
