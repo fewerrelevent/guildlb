@@ -390,24 +390,27 @@ function addSnapshot(guilds) {
 }
 
 // ── Diff ──────────────────────────────────────────────────
+function guildKey(g) { return g.name + '|' + g.abbr; }
+
 function getDiffs() {
   if (!snapshots.length) return [];
   const curr = snapshots[snapshots.length - 1];
   const prev = snapshots.length > 1 ? snapshots[snapshots.length - 2] : null;
   if (!prev) return curr.guilds.map(g => ({ ...g, repDelta: null, rankDelta: null, isNew: false }));
   const prevMap = {};
-  for (const g of prev.guilds) prevMap[g.name] = g;
+  for (const g of prev.guilds) prevMap[guildKey(g)] = g;
   return curr.guilds.map(g => {
-    const p = prevMap[g.name];
+    const p = prevMap[guildKey(g)];
     return { ...g, repDelta: p ? g.rep - p.rep : null, rankDelta: p ? p.rank - g.rank : null, isNew: !p };
   });
 }
 
 // History diff across ALL snapshots for sparklines
-function getRepHistory(name) {
+function getRepHistory(g) {
+  const key = guildKey(g);
   return snapshots.map(s => {
-    const g = s.guilds.find(x => x.name === name);
-    return g ? g.rep : null;
+    const found = s.guilds.find(x => guildKey(x) === key);
+    return found ? found.rep : null;
   }).filter(v => v !== null);
 }
 
@@ -498,7 +501,7 @@ function renderTable() {
       rankDeltaHtml = `<span class="neutral">—</span>`;
     }
 
-    const history = getRepHistory(g.name);
+    const history = getRepHistory(g);
     const sparkHtml = history.length >= 2 ? buildSparkline(history) : '';
 
     return `<tr>
