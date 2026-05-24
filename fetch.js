@@ -62,7 +62,7 @@ function dayKey(ts) {
 
   const now = Date.now();
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
-  const oneHour = 60 * 60 * 1000;
+  const fiveMinutes = 5 * 60 * 1000;
 
   const existing_snaps = existing.snapshots || [];
 
@@ -80,7 +80,7 @@ function dayKey(ts) {
 
   // Only drop the last recent snapshot if it was taken within the last hour (true duplicate run)
   const lastSnap = recentSnaps[recentSnaps.length - 1];
-  const recentWithoutLast = (lastSnap && now - lastSnap.ts < oneHour)
+  const recentWithoutLast = (lastSnap && now - lastSnap.ts < fiveMinutes)
     ? recentSnaps.slice(0, -1)
     : recentSnaps;
 
