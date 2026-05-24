@@ -418,9 +418,14 @@ function getSnapshotPair() {
     ? snapshots[0].ts  // all time: use oldest
     : curr.ts - days * 24 * 60 * 60 * 1000;
   const prev = getSnapshotNear(cutoff);
-  // If prev is the same as curr we have no comparison yet
   const hasDiff = prev && prev.ts !== curr.ts;
-  return { curr, prev: hasDiff ? prev : null };
+  if (!hasDiff && days !== 0) {
+    // Not enough data for selected range — fall back to all-time (oldest snapshot)
+    const oldest = snapshots[0];
+    const allTimeDiff = oldest.ts !== curr.ts;
+    return { curr, prev: allTimeDiff ? oldest : null, fellBack: true };
+  }
+  return { curr, prev: hasDiff ? prev : null, fellBack: false };
 }
 
 function diffSnapshots(curr, prev) {
@@ -480,15 +485,13 @@ function updateRangeInfo() {
   if (!el || !snapshots.length) return;
   const pair = getSnapshotPair();
   if (!pair || !pair.prev) {
-    const days = getSelectedDays();
-    el.textContent = days === 0
-      ? 'Showing all-time data — oldest snapshot: ' + new Date(snapshots[0].ts).toLocaleDateString()
-      : `Not enough data for ${days}-day range yet. Oldest snapshot: ${new Date(snapshots[0].ts).toLocaleDateString()}`;
+    el.textContent = 'Only one snapshot available — check back later.';
     return;
   }
   const from = new Date(pair.prev.ts).toLocaleString();
   const to = new Date(pair.curr.ts).toLocaleString();
-  el.textContent = `Comparing: ${from}  →  ${to}`;
+  const fallbackNote = pair.fellBack ? ' (not enough data for selected range — showing all-time instead)' : '';
+  el.textContent = `Comparing: ${from}  →  ${to}${fallbackNote}`;
 }
 
 function updateSummary() {
