@@ -576,6 +576,9 @@ function renderTable() {
  return;
  }
 
+ window._guildRowData = {};
+ rows.forEach(g => { window._guildRowData[g.rank] = g; });
+
  tbody.innerHTML = rows.map(g => {
  const isTop3 = g.rank <= 3;
  const rankClass = isTop3 ? 'rank-num top3' : 'rank-num';
