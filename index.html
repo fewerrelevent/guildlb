@@ -195,9 +195,6 @@
  padding: 2px 7px; border-radius: 4px; letter-spacing: 0.03em;
  }
 
- /* Sparkline bars */
- .sparkline { display: inline-flex; align-items: flex-end; gap: 2px; height: 16px; vertical-align: middle; margin-left: 6px; }
- .spark-bar { width: 3px; border-radius: 1px; min-height: 2px; }
 
  /* Empty state */
  .empty {
@@ -423,8 +420,13 @@ function getSnapshotPair() {
 
   const cutoff = curr.ts - days * 24 * 60 * 60 * 1000;
 
-  // If our oldest snapshot isn't old enough for the selected range, fall back to all-time
-  if (oldest.ts > cutoff) {
+  // Only use the range if we have a snapshot that actually reaches back far enough.
+  // Allow up to 20% tolerance (e.g. for 7 days, accept a snapshot up to 8.4 days old).
+  const tolerance = days * 24 * 60 * 60 * 1000 * 0.2;
+  const hasOldEnoughData = oldest.ts <= cutoff + tolerance;
+
+  if (!hasOldEnoughData) {
+    // Not enough history — fall back to all-time (oldest snapshot)
     return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: true };
   }
 
@@ -460,18 +462,6 @@ function getDiffs() {
   return diffSnapshots(pair.curr, pair.prev);
 }
 
-// History for sparklines — always uses all snapshots regardless of range
-function getRepHistory(g) {
-  let lastRank = g.rank;
-  return snapshots.map(s => {
-    const key = g.name + '|' + g.abbr;
-    const candidates = s.guilds.filter(x => x.name + '|' + x.abbr === key);
-    if (!candidates.length) return null;
-    const best = candidates.reduce((a, b) => Math.abs(a.rank - lastRank) <= Math.abs(b.rank - lastRank) ? a : b);
-    lastRank = best.rank;
-    return best.rep;
-  }).filter(v => v !== null);
-}
 
 // ── Render ────────────────────────────────────────────────
 function updateAll() {
@@ -571,12 +561,10 @@ function renderTable() {
  rankDeltaHtml = `<span class="neutral">—</span>`;
  }
 
- const history = getRepHistory(g);
- const sparkHtml = history.length >= 2 ? buildSparkline(history) : '';
 
  return `<tr>
  <td class="${rankClass}">#${g.rank}</td>
- <td class="name-cell" title="${esc(g.name)}">${esc(g.name)}${sparkHtml}</td>
+ <td class="name-cell" title="${esc(g.name)}">${esc(g.name)}</td>
  <td class="rep-cell">${fmtRep(g.rep)}</td>
  <td class="delta-cell">${repDeltaHtml}</td>
  <td class="rank-delta-cell">${rankDeltaHtml}</td>
@@ -584,22 +572,6 @@ function renderTable() {
  }).join('');
 }
 
-function buildSparkline(history) {
- if (history.length < 2) return '';
- const last6 = history.slice(-6);
- const mn = Math.min(...last6), mx = Math.max(...last6);
- const range = mx - mn || 1;
- const bars = last6.map((v, i) => {
- const h = Math.max(2, Math.round(((v-mn)/range)*14)+2);
- const isLast = i === last6.length-1;
- const prev = last6[i-1];
- let color = '#454d66';
- if (i > 0) color = v > prev ? '#4ade80' : v < prev ? '#f87171' : '#454d66';
- if (isLast) color = v > (last6[last6.length-2]||v) ? '#4ade80' : v < (last6[last6.length-2]||v) ? '#f87171' : '#7a8099';
- return `<span class="spark-bar" style="height:${h}px;background:${color};"></span>`;
- }).join('');
- return `<span class="sparkline" title="${last6.map(fmtRep).join(' → ')}">${bars}</span>`;
-}
 
 // ── Helpers ───────────────────────────────────────────────
 function fmt(n) { return Math.abs(n) >= 1000 ? (n/1000).toFixed(1)+'k' : n.toString(); }
