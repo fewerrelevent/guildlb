@@ -606,13 +606,13 @@
       ]
     },
     {
-      "ts": 1779583472221,
+      "ts": 1779589884514,
       "guilds": [
         {
           "rank": 1,
           "abbr": "C",
           "name": "Constellia",
-          "rep": 2086756
+          "rep": 2087198
         },
         {
           "rank": 2,
@@ -630,19 +630,19 @@
           "rank": 4,
           "abbr": "VV",
           "name": "Vermin Vagabonds",
-          "rep": 1170940
+          "rep": 1170968
         },
         {
           "rank": 5,
           "abbr": "T",
           "name": "Talonborne",
-          "rep": 1097450
+          "rep": 1097516
         },
         {
           "rank": 6,
           "abbr": "A",
           "name": "Arkhaios",
-          "rep": 1089223
+          "rep": 1089307
         },
         {
           "rank": 7,
@@ -654,13 +654,13 @@
           "rank": 8,
           "abbr": "N",
           "name": "Ninjago",
-          "rep": 769962
+          "rep": 769978
         },
         {
           "rank": 9,
           "abbr": "N",
           "name": "Neptune",
-          "rep": 678706
+          "rep": 678778
         },
         {
           "rank": 10,
@@ -672,37 +672,37 @@
           "rank": 11,
           "abbr": "TA",
           "name": "The Authority",
-          "rep": 612677
+          "rep": 612755
         },
         {
           "rank": 12,
           "abbr": "TLP",
           "name": "The Lost Pirates",
-          "rep": 552069
+          "rep": 552183
         },
         {
           "rank": 13,
           "abbr": "TRE",
           "name": "The Reverberation Ensemble",
-          "rep": 528993
+          "rep": 529199
         },
         {
           "rank": 14,
           "abbr": "B2",
           "name": "Bank 2",
-          "rep": 499965
+          "rep": 500056
         },
         {
           "rank": 15,
           "abbr": "AS",
           "name": "Abyss Seekers",
-          "rep": 436852
+          "rep": 436897
         },
         {
           "rank": 16,
           "abbr": "CF",
           "name": "Crest Fleet",
-          "rep": 431884
+          "rep": 431941
         },
         {
           "rank": 17,
@@ -726,7 +726,7 @@
           "rank": 20,
           "abbr": "#",
           "name": "##################",
-          "rep": 389046
+          "rep": 389176
         },
         {
           "rank": 21,
@@ -756,7 +756,7 @@
           "rank": 25,
           "abbr": "ROC",
           "name": "Realm of Cteyala",
-          "rep": 336794
+          "rep": 336802
         },
         {
           "rank": 26,
@@ -798,7 +798,7 @@
           "rank": 32,
           "abbr": "SS",
           "name": "Sailor's Symphony",
-          "rep": 288725
+          "rep": 288870
         },
         {
           "rank": 33,
@@ -834,7 +834,7 @@
           "rank": 38,
           "abbr": "OA",
           "name": "Ocean's Artisan",
-          "rep": 248590
+          "rep": 248702
         },
         {
           "rank": 39,
@@ -846,7 +846,7 @@
           "rank": 40,
           "abbr": "SS",
           "name": "Serpent's Shadow",
-          "rep": 247428
+          "rep": 247443
         },
         {
           "rank": 41,
@@ -888,7 +888,7 @@
           "rank": 47,
           "abbr": "CA",
           "name": "Constellia Altera",
-          "rep": 231738
+          "rep": 231842
         },
         {
           "rank": 48,
@@ -936,7 +936,7 @@
           "rank": 55,
           "abbr": "TP",
           "name": "The Plunderer",
-          "rep": 215492
+          "rep": 215547
         },
         {
           "rank": 56,
@@ -990,7 +990,7 @@
           "rank": 64,
           "abbr": "C",
           "name": "Caven",
-          "rep": 203537
+          "rep": 203555
         },
         {
           "rank": 65,
@@ -1008,7 +1008,7 @@
           "rank": 67,
           "abbr": "SOA",
           "name": "Spark of Ambiton",
-          "rep": 198367
+          "rep": 198413
         },
         {
           "rank": 68,
@@ -1026,7 +1026,7 @@
           "rank": 70,
           "abbr": "#",
           "name": "#############",
-          "rep": 191498
+          "rep": 191521
         },
         {
           "rank": 71,
@@ -1050,7 +1050,7 @@
           "rank": 74,
           "abbr": "TFC",
           "name": "The Fertile Crescent",
-          "rep": 187682
+          "rep": 187747
         },
         {
           "rank": 75,
@@ -1116,13 +1116,13 @@
           "rank": 85,
           "abbr": "LP",
           "name": "Lunar Pace",
-          "rep": 177215
+          "rep": 177222
         },
         {
           "rank": 86,
           "abbr": "UWU",
           "name": "Ultimate Weapon Users",
-          "rep": 175216
+          "rep": 175245
         },
         {
           "rank": 87,
@@ -1152,7 +1152,7 @@
           "rank": 91,
           "abbr": "TAE",
           "name": "The Astral Express",
-          "rep": 170142
+          "rep": 170222
         },
         {
           "rank": 92,
@@ -1176,7 +1176,7 @@
           "rank": 95,
           "abbr": "O",
           "name": "OMEN",
-          "rep": 166858
+          "rep": 166863
         },
         {
           "rank": 96,
