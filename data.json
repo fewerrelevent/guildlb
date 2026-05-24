@@ -1,13 +1,13 @@
 {
   "snapshots": [
     {
-      "ts": 1779595090924,
+      "ts": 1779595763623,
       "guilds": [
         {
           "rank": 1,
           "abbr": "C",
           "name": "Constellia",
-          "rep": 2087198
+          "rep": 2087215
         },
         {
           "rank": 2,
@@ -25,19 +25,19 @@
           "rank": 4,
           "abbr": "VV",
           "name": "Vermin Vagabonds",
-          "rep": 1170985
+          "rep": 1171019
         },
         {
           "rank": 5,
           "abbr": "T",
           "name": "Talonborne",
-          "rep": 1097576
+          "rep": 1097633
         },
         {
           "rank": 6,
           "abbr": "A",
           "name": "Arkhaios",
-          "rep": 1089414
+          "rep": 1089607
         },
         {
           "rank": 7,
@@ -67,43 +67,43 @@
           "rank": 11,
           "abbr": "TA",
           "name": "The Authority",
-          "rep": 612817
+          "rep": 612826
         },
         {
           "rank": 12,
           "abbr": "TLP",
           "name": "The Lost Pirates",
-          "rep": 552305
+          "rep": 552381
         },
         {
           "rank": 13,
           "abbr": "TRE",
           "name": "The Reverberation Ensemble",
-          "rep": 529269
+          "rep": 529477
         },
         {
           "rank": 14,
           "abbr": "B2",
           "name": "Bank 2",
-          "rep": 500135
+          "rep": 500168
         },
         {
           "rank": 15,
           "abbr": "AS",
           "name": "Abyss Seekers",
-          "rep": 436931
+          "rep": 437085
         },
         {
           "rank": 16,
           "abbr": "CF",
           "name": "Crest Fleet",
-          "rep": 432079
+          "rep": 432191
         },
         {
           "rank": 17,
           "abbr": "O",
           "name": "Onigiri",
-          "rep": 417815
+          "rep": 417849
         },
         {
           "rank": 18,
@@ -121,13 +121,13 @@
           "rank": 20,
           "abbr": "#",
           "name": "##################",
-          "rep": 389271
+          "rep": 389276
         },
         {
           "rank": 21,
           "abbr": "OOY",
           "name": "Order of Yggdrasil",
-          "rep": 376759
+          "rep": 376812
         },
         {
           "rank": 22,
@@ -145,13 +145,13 @@
           "rank": 24,
           "abbr": "HT",
           "name": "Holy Thighble",
-          "rep": 348004
+          "rep": 348011
         },
         {
           "rank": 25,
           "abbr": "ROC",
           "name": "Realm of Cteyala",
-          "rep": 336804
+          "rep": 336893
         },
         {
           "rank": 26,
@@ -185,15 +185,15 @@
         },
         {
           "rank": 31,
-          "abbr": "L",
-          "name": "Legri",
-          "rep": 289046
+          "abbr": "SS",
+          "name": "Sailor's Symphony",
+          "rep": 289162
         },
         {
           "rank": 32,
-          "abbr": "SS",
-          "name": "Sailor's Symphony",
-          "rep": 289007
+          "abbr": "L",
+          "name": "Legri",
+          "rep": 289046
         },
         {
           "rank": 33,
@@ -241,13 +241,13 @@
           "rank": 40,
           "abbr": "SS",
           "name": "Serpent's Shadow",
-          "rep": 247473
+          "rep": 247488
         },
         {
           "rank": 41,
           "abbr": "D",
           "name": "Deathless",
-          "rep": 245940
+          "rep": 246401
         },
         {
           "rank": 42,
@@ -259,7 +259,7 @@
           "rank": 43,
           "abbr": "S",
           "name": "Salvatore",
-          "rep": 235269
+          "rep": 235394
         },
         {
           "rank": 44,
@@ -283,7 +283,7 @@
           "rank": 47,
           "abbr": "CA",
           "name": "Constellia Altera",
-          "rep": 231902
+          "rep": 232006
         },
         {
           "rank": 48,
@@ -331,7 +331,7 @@
           "rank": 55,
           "abbr": "TP",
           "name": "The Plunderer",
-          "rep": 215721
+          "rep": 215738
         },
         {
           "rank": 56,
@@ -361,7 +361,7 @@
           "rank": 60,
           "abbr": "SFG",
           "name": "Scarlet Flame Guard",
-          "rep": 208830
+          "rep": 208842
         },
         {
           "rank": 61,
@@ -403,7 +403,7 @@
           "rank": 67,
           "abbr": "SOA",
           "name": "Spark of Ambiton",
-          "rep": 198413
+          "rep": 198423
         },
         {
           "rank": 68,
@@ -457,7 +457,7 @@
           "rank": 76,
           "abbr": "Y",
           "name": "Yggdrasil",
-          "rep": 185876
+          "rep": 185890
         },
         {
           "rank": 77,
@@ -469,7 +469,7 @@
           "rank": 78,
           "abbr": "F",
           "name": "Fishing",
-          "rep": 185008
+          "rep": 185175
         },
         {
           "rank": 79,
@@ -517,7 +517,7 @@
           "rank": 86,
           "abbr": "UWU",
           "name": "Ultimate Weapon Users",
-          "rep": 175269
+          "rep": 175288
         },
         {
           "rank": 87,
