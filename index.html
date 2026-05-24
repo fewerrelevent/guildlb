@@ -267,21 +267,29 @@
  </div>
 
  <div class="filter-row">
- <input type="text" id="search-input" placeholder=" Search guild name or tag…" oninput="renderTable()">
+ <select id="range-select" onchange="updateAll()">
+ <option value="7">Past 7 days</option>
+ <option value="30">Past 30 days</option>
+ <option value="90">Past 3 months</option>
+ <option value="180">Past 6 months</option>
+ <option value="365">Past 1 year</option>
+ <option value="0">All time</option>
+ </select>
+ <input type="text" id="search-input" placeholder="Search guild name…" oninput="renderTable()">
  <select id="sort-select" onchange="renderTable()">
  <option value="rank">Sort: rank</option>
- <option value="rep_delta">Sort: rep gain</option>
+ <option value="rep_delta">Sort: rep gained</option>
  <option value="rank_delta">Sort: rank climb</option>
  <option value="rep">Sort: total rep</option>
  </select>
  <select id="filter-select" onchange="renderTable()">
  <option value="all">All guilds</option>
- <option value="rising">Rising ↑ only</option>
- <option value="falling">Falling ↓ only</option>
+ <option value="rising">Gained rep only</option>
  <option value="new">New entries</option>
  </select>
  <span id="row-count" style="font-size:12px;color:var(--muted);margin-left:4px;"></span>
  </div>
+ <div id="range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
 
  <div class="table-wrap">
  <div class="table-scroll">
@@ -388,77 +396,120 @@ function addSnapshot(guilds) {
 
 // ── Diff ──────────────────────────────────────────────────
 
-
-function getDiffs() {
- if (!snapshots.length) return [];
- const curr = snapshots[snapshots.length - 1];
- const prev = snapshots.length > 1 ? snapshots[snapshots.length - 2] : null;
- if (!prev) return curr.guilds.map(g => ({ ...g, repDelta: null, rankDelta: null, isNew: false }));
-
- // Group prev guilds by name|abbr
- const prevGroups = {};
- for (const g of prev.guilds) {
- const k = g.name + '|' + g.abbr;
- if (!prevGroups[k]) prevGroups[k] = [];
- prevGroups[k].push(g);
- }
-
- // For each current guild, find best prev match by name|abbr, breaking ties by closest rank
- const used = new Set();
- return curr.guilds.map(g => {
- const k = g.name + '|' + g.abbr;
- const candidates = (prevGroups[k] || []).filter(c => !used.has(c.rank));
- if (!candidates.length) return { ...g, repDelta: null, rankDelta: null, isNew: true };
- // Pick the candidate with the closest rank to current
- const best = candidates.reduce((a, b) =>Math.abs(a.rank - g.rank) <= Math.abs(b.rank - g.rank) ? a : b);
- used.add(best.rank);
- return { ...g, repDelta: g.rep - best.rep, rankDelta: best.rank - g.rank, isNew: false };
- });
+// Find the snapshot closest to a given timestamp
+function getSnapshotNear(targetTs) {
+  if (!snapshots.length) return null;
+  return snapshots.reduce((best, s) =>
+    Math.abs(s.ts - targetTs) < Math.abs(best.ts - targetTs) ? s : best
+  );
 }
 
-// History diff across ALL snapshots for sparklines — match same way
+function getSelectedDays() {
+  const el = document.getElementById('range-select');
+  return el ? parseInt(el.value) : 7;
+}
+
+// Returns { curr, prev, rangeLabel, prevDate }
+function getSnapshotPair() {
+  if (!snapshots.length) return null;
+  const curr = snapshots[snapshots.length - 1];
+  const days = getSelectedDays();
+  const cutoff = days === 0
+    ? snapshots[0].ts  // all time: use oldest
+    : curr.ts - days * 24 * 60 * 60 * 1000;
+  const prev = getSnapshotNear(cutoff);
+  // If prev is the same as curr we have no comparison yet
+  const hasDiff = prev && prev.ts !== curr.ts;
+  return { curr, prev: hasDiff ? prev : null };
+}
+
+function diffSnapshots(curr, prev) {
+  if (!prev) return curr.guilds.map(g => ({ ...g, repDelta: null, rankDelta: null, isNew: false }));
+
+  const prevGroups = {};
+  for (const g of prev.guilds) {
+    const k = g.name + '|' + g.abbr;
+    if (!prevGroups[k]) prevGroups[k] = [];
+    prevGroups[k].push(g);
+  }
+
+  const used = new Set();
+  return curr.guilds.map(g => {
+    const k = g.name + '|' + g.abbr;
+    const candidates = (prevGroups[k] || []).filter(c => !used.has(c.rank));
+    if (!candidates.length) return { ...g, repDelta: null, rankDelta: null, isNew: true };
+    const best = candidates.reduce((a, b) => Math.abs(a.rank - g.rank) <= Math.abs(b.rank - g.rank) ? a : b);
+    used.add(best.rank);
+    return { ...g, repDelta: g.rep - best.rep, rankDelta: best.rank - g.rank, isNew: false };
+  });
+}
+
+function getDiffs() {
+  const pair = getSnapshotPair();
+  if (!pair) return [];
+  return diffSnapshots(pair.curr, pair.prev);
+}
+
+// History for sparklines — always uses all snapshots regardless of range
 function getRepHistory(g) {
- let lastRank = g.rank;
- return snapshots.map(s => {
- // Find closest rank match with same name|abbr
- const key = g.name + '|' + g.abbr;
- const candidates = s.guilds.filter(x => x.name + '|' + x.abbr === key);
- if (!candidates.length) return null;
- const best = candidates.reduce((a, b) =>Math.abs(a.rank - lastRank) <= Math.abs(b.rank - lastRank) ? a : b);
- lastRank = best.rank;
- return best.rep;
- }).filter(v => v !== null);
+  let lastRank = g.rank;
+  return snapshots.map(s => {
+    const key = g.name + '|' + g.abbr;
+    const candidates = s.guilds.filter(x => x.name + '|' + x.abbr === key);
+    if (!candidates.length) return null;
+    const best = candidates.reduce((a, b) => Math.abs(a.rank - lastRank) <= Math.abs(b.rank - lastRank) ? a : b);
+    lastRank = best.rank;
+    return best.rep;
+  }).filter(v => v !== null);
 }
 
 // ── Render ────────────────────────────────────────────────
 function updateAll() {
- updateSummary();
- renderTable();
- document.getElementById('snapshot-label').textContent = `${snapshots.length} snapshot${snapshots.length!==1?'s':''} stored`;
- if (snapshots.length) {
- const ts = new Date(snapshots[snapshots.length-1].ts);
- document.getElementById('footer-time').textContent = `Snapshot: ${ts.toLocaleString()}`;
- }
+  updateRangeInfo();
+  updateSummary();
+  renderTable();
+  document.getElementById('snapshot-label').textContent = `${snapshots.length} snapshot${snapshots.length!==1?'s':''} stored`;
+  if (snapshots.length) {
+    const ts = new Date(snapshots[snapshots.length-1].ts);
+    document.getElementById('footer-time').textContent = `Snapshot: ${ts.toLocaleString()}`;
+  }
+}
+
+function updateRangeInfo() {
+  const el = document.getElementById('range-info');
+  if (!el || !snapshots.length) return;
+  const pair = getSnapshotPair();
+  if (!pair || !pair.prev) {
+    const days = getSelectedDays();
+    el.textContent = days === 0
+      ? 'Showing all-time data — oldest snapshot: ' + new Date(snapshots[0].ts).toLocaleDateString()
+      : `Not enough data for ${days}-day range yet. Oldest snapshot: ${new Date(snapshots[0].ts).toLocaleDateString()}`;
+    return;
+  }
+  const from = new Date(pair.prev.ts).toLocaleString();
+  const to = new Date(pair.curr.ts).toLocaleString();
+  el.textContent = `Comparing: ${from}  →  ${to}`;
 }
 
 function updateSummary() {
- if (!snapshots.length) return;
- const diffs = getDiffs();
- const curr = snapshots[snapshots.length-1];
- const total = curr.guilds.reduce((s,g) => s+g.rep, 0);
+  if (!snapshots.length) return;
+  const diffs = getDiffs();
+  const withDelta = diffs.filter(g => g.repDelta !== null && g.repDelta > 0);
+  if (withDelta.length) {
+    const gainer = withDelta.reduce((a,b) => b.repDelta > a.repDelta ? b : a);
+    document.getElementById('sc-gainer').textContent = '+' + fmt(gainer.repDelta);
+    document.getElementById('sc-gainer-sub').textContent = gainer.name;
 
- 
-
- const withDelta = diffs.filter(g => g.repDelta !== null);
- if (withDelta.length) {
- const gainer = withDelta.reduce((a,b) => b.repDelta>a.repDelta?b:a);
- document.getElementById('sc-gainer').textContent = gainer.repDelta > 0 ? '+'+fmt(gainer.repDelta) : '—';
- document.getElementById('sc-gainer-sub').textContent = gainer.repDelta > 0 ? gainer.name : 'no gains yet';
-
- const climber = withDelta.filter(g=>g.rankDelta!==null).reduce((a,b)=>(b.rankDelta||0)>(a.rankDelta||0)?b:a, {rankDelta:-999,name:''});
- document.getElementById('sc-climber').textContent = climber.rankDelta > 0 ? '+'+climber.rankDelta : '—';
- document.getElementById('sc-climber-sub').textContent = climber.rankDelta > 0 ? climber.name : 'no rank changes';
- }
+    const climber = diffs.filter(g => g.rankDelta !== null && g.rankDelta > 0)
+      .reduce((a,b) => (b.rankDelta||0) > (a.rankDelta||0) ? b : a, {rankDelta:-999, name:''});
+    document.getElementById('sc-climber').textContent = climber.rankDelta > 0 ? '+' + climber.rankDelta : '—';
+    document.getElementById('sc-climber-sub').textContent = climber.rankDelta > 0 ? climber.name : 'no rank changes';
+  } else {
+    document.getElementById('sc-gainer').textContent = '—';
+    document.getElementById('sc-gainer-sub').textContent = 'no gains in range';
+    document.getElementById('sc-climber').textContent = '—';
+    document.getElementById('sc-climber-sub').textContent = 'no rank changes';
+  }
 }
 
 function renderTable() {
@@ -472,7 +523,6 @@ function renderTable() {
  // Filter
  const f = document.getElementById('filter-select').value;
  if (f === 'rising') rows = rows.filter(g => g.repDelta !== null && g.repDelta > 0);
- else if (f === 'falling') rows = rows.filter(g => g.repDelta !== null && g.repDelta < 0);
  else if (f === 'new') rows = rows.filter(g => g.isNew);
 
  // Sort
