@@ -61,32 +61,31 @@ function dayKey(ts) {
   }
 
   const now = Date.now();
-  const todayKey = dayKey(now);
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+  const oneHour = 60 * 60 * 1000;
 
-  // Strategy:
-  // - Keep ALL snapshots from the last 7 days (hourly resolution)
-  // - For older snapshots, keep only the LAST snapshot per day
   const existing_snaps = existing.snapshots || [];
 
+  // Split into recent (last 7 days, keep all hourly) and older (keep one per day)
   const recentSnaps = existing_snaps.filter(s => s.ts >= sevenDaysAgo);
+  const olderSnaps  = existing_snaps.filter(s => s.ts <  sevenDaysAgo);
 
-  const olderSnaps = existing_snaps.filter(s => s.ts < sevenDaysAgo);
+  // Dedupe older snapshots to one per day (keep latest of each day)
   const olderByDay = {};
   for (const s of olderSnaps) {
     const dk = dayKey(s.ts);
-    // Keep the latest snapshot of each day
-    if (!olderByDay[dk] || s.ts > olderByDay[dk].ts) {
-      olderByDay[dk] = s;
-    }
+    if (!olderByDay[dk] || s.ts > olderByDay[dk].ts) olderByDay[dk] = s;
   }
   const dedupedOlder = Object.values(olderByDay).sort((a, b) => a.ts - b.ts);
 
-  // Remove today's existing snapshot from recent (we'll replace with fresh one)
-  const recentWithoutToday = recentSnaps.filter(s => dayKey(s.ts) !== todayKey);
+  // Only drop the last recent snapshot if it was taken within the last hour (true duplicate run)
+  const lastSnap = recentSnaps[recentSnaps.length - 1];
+  const recentWithoutLast = (lastSnap && now - lastSnap.ts < oneHour)
+    ? recentSnaps.slice(0, -1)
+    : recentSnaps;
 
-  const snapshots = [...dedupedOlder, ...recentWithoutToday, { ts: now, guilds }];
+  const snapshots = [...dedupedOlder, ...recentWithoutLast, { ts: now, guilds }];
 
   fs.writeFileSync(OUT, JSON.stringify({ snapshots }, null, 2));
-  console.log(`Wrote ${guilds.length} guilds. Total snapshots: ${snapshots.length} (${dedupedOlder.length} daily archive + ${recentWithoutToday.length + 1} recent)`);
+  console.log(`Wrote ${guilds.length} guilds. Total snapshots: ${snapshots.length} (${dedupedOlder.length} daily + ${recentWithoutLast.length + 1} recent)`);
 })();
