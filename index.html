@@ -258,7 +258,7 @@
  .mstat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
  .mstat-value { font-size: 18px; font-weight: 600; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-rRoXxn2yHlrZYB587Ki9RO1tONhLdM6XfORg7Rw4uwH4/Fh/5nP7IUX91bkaKUgs" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -399,22 +399,14 @@ async function fetchNow() {
  const data = await res.json();
  if (!data.snapshots || !data.snapshots.length) throw new Error('No snapshots in data.json');
 
- // Merge remote snapshots into local, deduplicating by timestamp
- const localTs = new Set(snapshots.map(s => s.ts));
- let added = 0;
- for (const snap of data.snapshots) {
- if (!localTs.has(snap.ts)) {
- snapshots.push(snap);
- added++;
- }
- }
- snapshots.sort((a, b) => a.ts - b.ts);
+ // data.json is source of truth — use it directly, don't accumulate locally
+ snapshots = data.snapshots.slice().sort((a, b) => a.ts - b.ts);
  save();
  updateAll();
 
  const latest = new Date(snapshots[snapshots.length - 1].ts);
  setStatus(`Data updated: ${latest.toLocaleString()}`);
- toast(added > 0 ? ` Loaded ${added} new snapshot${added !== 1 ? 's' : ''}` : ' Already up to date');
+ toast(`Loaded ${snapshots.length} snapshot${snapshots.length !== 1 ? 's' : ''}`);
  } catch(err) {
  console.warn('Load failed:', err);
  setStatus(`Load failed: ${err.message}`);
@@ -608,7 +600,7 @@ function renderTable() {
 
  return `<tr>
  <td class="${rankClass}">#${g.rank}</td>
- <td class="name-cell" title="${esc(g.name)}" style="cursor:pointer;" onclick='openModal(${JSON.stringify(g)})'>${esc(g.name)}</td>
+ <td class="name-cell" title="${esc(g.name)}" style="cursor:pointer;" onclick="openModal(${g.rank})">${esc(g.name)}</td>
  <td class="rep-cell">${fmtRep(g.rep)}</td>
  <td class="delta-cell">${repDeltaHtml}</td>
  <td class="rank-delta-cell">${rankDeltaHtml}</td>
@@ -618,8 +610,8 @@ function renderTable() {
 
 
 // ── Helpers ───────────────────────────────────────────────
-function fmt(n) { return Math.abs(n) >= 1000 ? (n/1000).toFixed(1)+'k' : n.toString(); }
-function fmtRep(n) { return n >= 1e6 ? (n/1e6).toFixed(3)+'M' : n.toLocaleString(); }
+function fmt(n) { return n.toLocaleString(); }
+function fmtRep(n) { return n.toLocaleString(); }
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function setStatus(t) { document.getElementById('status-text').textContent = t; }
 function toast(msg) {
@@ -670,7 +662,9 @@ function getGuildHistory(g) {
   return result;
 }
 
-function openModal(g) {
+function openModal(rank) {
+  const g = window._guildRowData[rank];
+  if (!g) return;
   const history = getGuildHistory(g);
   const overlay = document.getElementById('modal-overlay');
   document.getElementById('modal-title').textContent = g.name;
