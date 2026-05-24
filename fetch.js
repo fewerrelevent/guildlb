@@ -5,6 +5,11 @@ const path = require('path');
 const URL = 'https://leaderboards.arcaneodyssey.dev/guilds';
 const OUT = path.join(__dirname, 'data.json');
 
+function dayKey(ts) {
+  const d = new Date(ts);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+}
+
 (async () => {
   console.log('Launching browser...');
   const browser = await puppeteer.launch({
@@ -16,15 +21,12 @@ const OUT = path.join(__dirname, 'data.json');
 
   console.log(`Fetching ${URL}...`);
   await page.goto(URL, { waitUntil: 'networkidle2', timeout: 30000 });
-
-  // Wait for guild entries to appear in the DOM
   await page.waitForSelector('h2, [class*="guild"], [class*="rank"]', { timeout: 15000 }).catch(() => {});
 
   const guilds = await page.evaluate(() => {
     const results = [];
     const text = document.body.innerText;
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-
     let i = 0;
     while (i < lines.length) {
       const rankMatch = lines[i].match(/^#(\d+)$/);
@@ -52,16 +54,39 @@ const OUT = path.join(__dirname, 'data.json');
     process.exit(1);
   }
 
-  // Load existing data.json to append to history
+  // Load existing data.json
   let existing = { snapshots: [] };
   if (fs.existsSync(OUT)) {
     try { existing = JSON.parse(fs.readFileSync(OUT, 'utf8')); } catch (e) {}
   }
 
-  // Keep last 168 snapshots (1 week of hourly)
-  const snapshots = (existing.snapshots || []).slice(-167);
-  snapshots.push({ ts: Date.now(), guilds });
+  const now = Date.now();
+  const todayKey = dayKey(now);
+  const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+
+  // Strategy:
+  // - Keep ALL snapshots from the last 7 days (hourly resolution)
+  // - For older snapshots, keep only the LAST snapshot per day
+  const existing_snaps = existing.snapshots || [];
+
+  const recentSnaps = existing_snaps.filter(s => s.ts >= sevenDaysAgo);
+
+  const olderSnaps = existing_snaps.filter(s => s.ts < sevenDaysAgo);
+  const olderByDay = {};
+  for (const s of olderSnaps) {
+    const dk = dayKey(s.ts);
+    // Keep the latest snapshot of each day
+    if (!olderByDay[dk] || s.ts > olderByDay[dk].ts) {
+      olderByDay[dk] = s;
+    }
+  }
+  const dedupedOlder = Object.values(olderByDay).sort((a, b) => a.ts - b.ts);
+
+  // Remove today's existing snapshot from recent (we'll replace with fresh one)
+  const recentWithoutToday = recentSnaps.filter(s => dayKey(s.ts) !== todayKey);
+
+  const snapshots = [...dedupedOlder, ...recentWithoutToday, { ts: now, guilds }];
 
   fs.writeFileSync(OUT, JSON.stringify({ snapshots }, null, 2));
-  console.log(`✓ Wrote ${guilds.length} guilds to data.json (${snapshots.length} snapshots total)`);
+  console.log(`Wrote ${guilds.length} guilds. Total snapshots: ${snapshots.length} (${dedupedOlder.length} daily archive + ${recentWithoutToday.length + 1} recent)`);
 })();
