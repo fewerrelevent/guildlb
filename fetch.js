@@ -114,11 +114,26 @@ async function scrapeRanked(page) {
     process.exit(1);
   }
 
-  // Load existing data
+  // Load existing data — handle both new { guilds:[], clans:[], ranked:[] }
+  // and old { snapshots:[] } formats
   let existing = { guilds: [], clans: [], ranked: [] };
   if (fs.existsSync(OUT)) {
-    try { existing = JSON.parse(fs.readFileSync(OUT, 'utf8')); } catch (e) {}
+    try {
+      const raw = JSON.parse(fs.readFileSync(OUT, 'utf8'));
+      if (Array.isArray(raw.guilds)) {
+        existing = raw;
+      } else if (Array.isArray(raw.snapshots)) {
+        existing.guilds = raw.snapshots;
+      }
+      console.log(`Loaded existing data: ${(existing.guilds||[]).length} guild snapshots, ${(existing.clans||[]).length} clan snapshots, ${(existing.ranked||[]).length} ranked snapshots`);
+    } catch (e) { console.warn('Could not parse existing data.json:', e.message); }
+  } else {
+    console.warn('No existing data.json found — starting fresh.');
   }
+  // Ensure all keys exist
+  existing.guilds  = existing.guilds  || [];
+  existing.clans   = existing.clans   || [];
+  existing.ranked  = existing.ranked  || [];
 
   const now = Date.now();
 
