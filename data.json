@@ -16939,6 +16939,611 @@
           "rep": 162263
         }
       ]
+    },
+    {
+      "ts": 1779822874246,
+      "guilds": [
+        {
+          "rank": 1,
+          "abbr": "C",
+          "name": "Constellia",
+          "rep": 2101980
+        },
+        {
+          "rank": 2,
+          "abbr": "NAXOS",
+          "name": "N A X O S",
+          "rep": 1343176
+        },
+        {
+          "rank": 3,
+          "abbr": "LL",
+          "name": "Lotus Luminaries",
+          "rep": 1322295
+        },
+        {
+          "rank": 4,
+          "abbr": "VV",
+          "name": "Vermin Vagabonds",
+          "rep": 1176572
+        },
+        {
+          "rank": 5,
+          "abbr": "T",
+          "name": "Talonborne",
+          "rep": 1112551
+        },
+        {
+          "rank": 6,
+          "abbr": "A",
+          "name": "Arkhaios",
+          "rep": 1107986
+        },
+        {
+          "rank": 7,
+          "abbr": "B",
+          "name": "bruh",
+          "rep": 843758
+        },
+        {
+          "rank": 8,
+          "abbr": "N",
+          "name": "Ninjago",
+          "rep": 772611
+        },
+        {
+          "rank": 9,
+          "abbr": "N",
+          "name": "Neptune",
+          "rep": 681665
+        },
+        {
+          "rank": 10,
+          "abbr": "R",
+          "name": "Ravencrest",
+          "rep": 617024
+        },
+        {
+          "rank": 11,
+          "abbr": "TA",
+          "name": "The Authority",
+          "rep": 615332
+        },
+        {
+          "rank": 12,
+          "abbr": "TLP",
+          "name": "The Lost Pirates",
+          "rep": 565257
+        },
+        {
+          "rank": 13,
+          "abbr": "TRE",
+          "name": "The Reverberation Ensemble",
+          "rep": 535376
+        },
+        {
+          "rank": 14,
+          "abbr": "B2",
+          "name": "Bank 2",
+          "rep": 510004
+        },
+        {
+          "rank": 15,
+          "abbr": "AS",
+          "name": "Abyss Seekers",
+          "rep": 439016
+        },
+        {
+          "rank": 16,
+          "abbr": "CF",
+          "name": "Crest Fleet",
+          "rep": 435245
+        },
+        {
+          "rank": 17,
+          "abbr": "O",
+          "name": "Onigiri",
+          "rep": 421156
+        },
+        {
+          "rank": 18,
+          "abbr": "#",
+          "name": "#########",
+          "rep": 416987
+        },
+        {
+          "rank": 19,
+          "abbr": "TNB",
+          "name": "The Naval Brigade",
+          "rep": 395096
+        },
+        {
+          "rank": 20,
+          "abbr": "#",
+          "name": "##################",
+          "rep": 390308
+        },
+        {
+          "rank": 21,
+          "abbr": "OOY",
+          "name": "Order of Yggdrasil",
+          "rep": 382022
+        },
+        {
+          "rank": 22,
+          "abbr": "SO",
+          "name": "Solar Oath",
+          "rep": 372563
+        },
+        {
+          "rank": 23,
+          "abbr": "HT",
+          "name": "Holy Thighble",
+          "rep": 357061
+        },
+        {
+          "rank": 24,
+          "abbr": "JG",
+          "name": "Jewel Guardians",
+          "rep": 353595
+        },
+        {
+          "rank": 25,
+          "abbr": "ROC",
+          "name": "Realm of Cteyala",
+          "rep": 345942
+        },
+        {
+          "rank": 26,
+          "abbr": "FP",
+          "name": "Fire Phoenix",
+          "rep": 326718
+        },
+        {
+          "rank": 27,
+          "abbr": "TIF",
+          "name": "The Iron Fleet",
+          "rep": 309363
+        },
+        {
+          "rank": 28,
+          "abbr": "B",
+          "name": "Blackwind",
+          "rep": 296924
+        },
+        {
+          "rank": 29,
+          "abbr": "PP",
+          "name": "Portside Pirates",
+          "rep": 292528
+        },
+        {
+          "rank": 30,
+          "abbr": "TUM",
+          "name": "The Unbound Mariners",
+          "rep": 290494
+        },
+        {
+          "rank": 31,
+          "abbr": "SS",
+          "name": "Sailor's Symphony",
+          "rep": 290175
+        },
+        {
+          "rank": 32,
+          "abbr": "L",
+          "name": "Legri",
+          "rep": 289055
+        },
+        {
+          "rank": 33,
+          "abbr": "S",
+          "name": "Supernova",
+          "rep": 285527
+        },
+        {
+          "rank": 34,
+          "abbr": "V",
+          "name": "Valcrest",
+          "rep": 276891
+        },
+        {
+          "rank": 35,
+          "abbr": "C",
+          "name": "Conlegium",
+          "rep": 274887
+        },
+        {
+          "rank": 36,
+          "abbr": "I",
+          "name": "Ianuarius",
+          "rep": 269043
+        },
+        {
+          "rank": 37,
+          "abbr": "KO",
+          "name": "Kyrsan Order",
+          "rep": 257563
+        },
+        {
+          "rank": 38,
+          "abbr": "D",
+          "name": "Deathless",
+          "rep": 254991
+        },
+        {
+          "rank": 39,
+          "abbr": "OA",
+          "name": "Ocean's Artisan",
+          "rep": 249875
+        },
+        {
+          "rank": 40,
+          "abbr": "TS",
+          "name": "The Stankers",
+          "rep": 248380
+        },
+        {
+          "rank": 41,
+          "abbr": "SS",
+          "name": "Serpent's Shadow",
+          "rep": 247567
+        },
+        {
+          "rank": 42,
+          "abbr": "BFFC",
+          "name": "Bobbing for Fish Co.",
+          "rep": 244634
+        },
+        {
+          "rank": 43,
+          "abbr": "CA",
+          "name": "Constellia Altera",
+          "rep": 242718
+        },
+        {
+          "rank": 44,
+          "abbr": "TD",
+          "name": "True Drifters",
+          "rep": 236292
+        },
+        {
+          "rank": 45,
+          "abbr": "S",
+          "name": "Salvatore",
+          "rep": 236108
+        },
+        {
+          "rank": 46,
+          "abbr": "OOA",
+          "name": "order of astrix",
+          "rep": 235280
+        },
+        {
+          "rank": 47,
+          "abbr": "TWOF",
+          "name": "The Wind Of Fortune",
+          "rep": 235123
+        },
+        {
+          "rank": 48,
+          "abbr": "KOTBO",
+          "name": "Knights of the Bronze Order",
+          "rep": 232094
+        },
+        {
+          "rank": 49,
+          "abbr": "A",
+          "name": "Azalea",
+          "rep": 229357
+        },
+        {
+          "rank": 50,
+          "abbr": "E",
+          "name": "EXPLOSION!",
+          "rep": 226034
+        },
+        {
+          "rank": 51,
+          "abbr": "O",
+          "name": "Omsk",
+          "rep": 225364
+        },
+        {
+          "rank": 52,
+          "abbr": "CD",
+          "name": "Crimson Demons",
+          "rep": 223890
+        },
+        {
+          "rank": 53,
+          "abbr": "T",
+          "name": "Tengu",
+          "rep": 222639
+        },
+        {
+          "rank": 54,
+          "abbr": "S",
+          "name": "Suncry",
+          "rep": 222200
+        },
+        {
+          "rank": 55,
+          "abbr": "TP",
+          "name": "The Plunderer",
+          "rep": 219483
+        },
+        {
+          "rank": 56,
+          "abbr": "LE",
+          "name": "Lunar Empire",
+          "rep": 212553
+        },
+        {
+          "rank": 57,
+          "abbr": "S",
+          "name": "Silverthorn",
+          "rep": 212254
+        },
+        {
+          "rank": 58,
+          "abbr": "TLOM",
+          "name": "The Legend of Magius",
+          "rep": 212092
+        },
+        {
+          "rank": 59,
+          "abbr": "SOTF",
+          "name": "Sodality of The Fox",
+          "rep": 211778
+        },
+        {
+          "rank": 60,
+          "abbr": "B",
+          "name": "Buckets",
+          "rep": 210261
+        },
+        {
+          "rank": 61,
+          "abbr": "SFG",
+          "name": "Scarlet Flame Guard",
+          "rep": 209861
+        },
+        {
+          "rank": 62,
+          "abbr": "P",
+          "name": "Proternum",
+          "rep": 207203
+        },
+        {
+          "rank": 63,
+          "abbr": "TE",
+          "name": "Total Eclipse",
+          "rep": 207141
+        },
+        {
+          "rank": 64,
+          "abbr": "C",
+          "name": "Caven",
+          "rep": 204622
+        },
+        {
+          "rank": 65,
+          "abbr": "SOA",
+          "name": "Spark of Ambiton",
+          "rep": 202127
+        },
+        {
+          "rank": 66,
+          "abbr": "SOY",
+          "name": "Shadows of Yor",
+          "rep": 202026
+        },
+        {
+          "rank": 67,
+          "abbr": "TDE",
+          "name": "The Dominate Empire",
+          "rep": 200990
+        },
+        {
+          "rank": 68,
+          "abbr": "#",
+          "name": "#############",
+          "rep": 196953
+        },
+        {
+          "rank": 69,
+          "abbr": "CC",
+          "name": "cirno church",
+          "rep": 192603
+        },
+        {
+          "rank": 70,
+          "abbr": "TS",
+          "name": "The Savior's",
+          "rep": 191862
+        },
+        {
+          "rank": 71,
+          "abbr": "COTD",
+          "name": "Cult of the Drowned",
+          "rep": 191701
+        },
+        {
+          "rank": 72,
+          "abbr": "F",
+          "name": "Fishing",
+          "rep": 190885
+        },
+        {
+          "rank": 73,
+          "abbr": "S",
+          "name": "Supernova",
+          "rep": 190290
+        },
+        {
+          "rank": 74,
+          "abbr": "OOS",
+          "name": "Order Of Sevno",
+          "rep": 190241
+        },
+        {
+          "rank": 75,
+          "abbr": "TFC",
+          "name": "The Fertile Crescent",
+          "rep": 187998
+        },
+        {
+          "rank": 76,
+          "abbr": "Y",
+          "name": "Yggdrasil",
+          "rep": 187599
+        },
+        {
+          "rank": 77,
+          "abbr": "LOTWS",
+          "name": "Lords of the War Seas",
+          "rep": 186180
+        },
+        {
+          "rank": 78,
+          "abbr": "FM",
+          "name": "Fast Men",
+          "rep": 185988
+        },
+        {
+          "rank": 79,
+          "abbr": "TRGN",
+          "name": "The Royal Geraldian Navy",
+          "rep": 185570
+        },
+        {
+          "rank": 80,
+          "abbr": "HO",
+          "name": "Hexagonal orbs",
+          "rep": 184619
+        },
+        {
+          "rank": 81,
+          "abbr": "N",
+          "name": "NightMareS",
+          "rep": 182207
+        },
+        {
+          "rank": 82,
+          "abbr": "V",
+          "name": "Valturity",
+          "rep": 178715
+        },
+        {
+          "rank": 83,
+          "abbr": "S",
+          "name": "Starborn",
+          "rep": 178414
+        },
+        {
+          "rank": 84,
+          "abbr": "LP",
+          "name": "Lunar Pace",
+          "rep": 178366
+        },
+        {
+          "rank": 85,
+          "abbr": "V",
+          "name": "Vexsm",
+          "rep": 177282
+        },
+        {
+          "rank": 86,
+          "abbr": "UWU",
+          "name": "Ultimate Weapon Users",
+          "rep": 176464
+        },
+        {
+          "rank": 87,
+          "abbr": "ES",
+          "name": "Elemental Symphony",
+          "rep": 175237
+        },
+        {
+          "rank": 88,
+          "abbr": "TFOA",
+          "name": "The Face of Adversity",
+          "rep": 172797
+        },
+        {
+          "rank": 89,
+          "abbr": "TAE",
+          "name": "The Astral Express",
+          "rep": 172227
+        },
+        {
+          "rank": 90,
+          "abbr": "S",
+          "name": "Starlight",
+          "rep": 171855
+        },
+        {
+          "rank": 91,
+          "abbr": "BOA",
+          "name": "Bakers of Akursius",
+          "rep": 171703
+        },
+        {
+          "rank": 92,
+          "abbr": "O",
+          "name": "OMEN",
+          "rep": 170538
+        },
+        {
+          "rank": 93,
+          "abbr": "SHC",
+          "name": "Straw Hat Clan",
+          "rep": 169994
+        },
+        {
+          "rank": 94,
+          "abbr": "RA",
+          "name": "Rosen Armada",
+          "rep": 169721
+        },
+        {
+          "rank": 95,
+          "abbr": "BM",
+          "name": "Blood Moon",
+          "rep": 169429
+        },
+        {
+          "rank": 96,
+          "abbr": "D",
+          "name": "Darkcry",
+          "rep": 164860
+        },
+        {
+          "rank": 97,
+          "abbr": "TMC",
+          "name": "The Moonlight Crusaders",
+          "rep": 164425
+        },
+        {
+          "rank": 98,
+          "abbr": "FF",
+          "name": "Fish Folk",
+          "rep": 163788
+        },
+        {
+          "rank": 99,
+          "abbr": "MG",
+          "name": "Merchants' Guild",
+          "rep": 163505
+        },
+        {
+          "rank": 100,
+          "abbr": "DSM",
+          "name": "Dark Sea Marauders",
+          "rep": 162386
+        }
+      ]
     }
   ]
 }
