@@ -3,764 +3,610 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AO Guild Tracker</title>
-<style>
- :root {
- --bg: #0d0f14;
- --surface: #151820;
- --surface2: #1c2030;
- --border: rgba(255,255,255,0.07);
- --border2: rgba(255,255,255,0.13);
- --text: #e8eaf0;
- --muted: #7a8099;
- --dim: #454d66;
- --accent: #6c8ef7;
- --accent-dim: rgba(108,142,247,0.12);
- --green: #4ade80;
- --green-dim: rgba(74,222,128,0.12);
- --red: #f87171;
- --red-dim: rgba(248,113,113,0.12);
- --amber: #fbbf24;
- --gold: #f5c842;
- --radius: 8px;
- --radius-lg: 12px;
- }
-
- * { box-sizing: border-box; margin: 0; padding: 0; }
-
- body {
- background: var(--bg);
- color: var(--text);
- font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
- font-size: 14px;
- min-height: 100vh;
- }
-
- /* Background grid texture */
- body::before {
- content: '';
- position: fixed;
- inset: 0;
- background-image:
- linear-gradient(rgba(108,142,247,0.03) 1px, transparent 1px),
- linear-gradient(90deg, rgba(108,142,247,0.03) 1px, transparent 1px);
- background-size: 40px 40px;
- pointer-events: none;
- z-index: 0;
- }
-
- .page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
-
- /* Header */
- header {
- display: flex;
- align-items: center;
- justify-content: space-between;
- flex-wrap: wrap;
- gap: 1rem;
- margin-bottom: 2rem;
- padding-bottom: 1.5rem;
- border-bottom: 1px solid var(--border);
- }
- .header-left { display: flex; align-items: center; gap: 14px; }
- .logo {
- width: 42px; height: 42px; border-radius: var(--radius);
- background: linear-gradient(135deg, #2a3a7a, #4a5fb5);
- display: flex; align-items: center; justify-content: center;
- font-size: 20px; border: 1px solid rgba(108,142,247,0.3);
- }
- h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
- h1 span { color: var(--accent); }
- .subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
- .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
- /* Buttons */
- button {
- display: inline-flex; align-items: center; gap: 6px;
- padding: 7px 14px; border-radius: var(--radius);
- font-size: 13px; font-weight: 500; cursor: pointer;
- border: 1px solid var(--border2); background: var(--surface2);
- color: var(--text); transition: all 0.15s;
- }
- button:hover { background: var(--surface); border-color: rgba(255,255,255,0.2); }
- button:active { transform: scale(0.97); }
- button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
- .btn-primary { background: var(--accent); border-color: transparent; color: #fff; }
- .btn-primary:hover { background: #5a7ef5; }
-
- /* Status bar */
- .status-bar {
- display: flex; align-items: center; gap: 8px;
- font-size: 12px; color: var(--muted);
- margin-bottom: 1.5rem; flex-wrap: wrap;
- }
- .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); display: inline-block; }
- .dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
- @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
- .sep { color: var(--dim); }
-
- /* Summary cards */
- .summary-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
- gap: 10px;
- margin-bottom: 1.5rem;
- }
- .scard {
- background: var(--surface);
- border: 1px solid var(--border);
- border-radius: var(--radius-lg);
- padding: 14px 16px;
- transition: border-color 0.2s;
- }
- .scard:hover { border-color: var(--border2); }
- .scard-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
- .scard-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); }
- .scard-sub { font-size: 11px; color: var(--muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
- .scard-value.green { color: var(--green); }
- .scard-value.red { color: var(--red); }
- .scard-value.gold { color: var(--gold); }
-
- /* Filter row */
- .filter-row {
- display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;
- }
- .filter-row input, .filter-row select {
- background: var(--surface);
- border: 1px solid var(--border2);
- color: var(--text);
- border-radius: var(--radius);
- padding: 7px 11px;
- font-size: 13px;
- outline: none;
- transition: border-color 0.15s;
- }
- .filter-row input { width: 220px; }
- .filter-row input:focus, .filter-row select:focus { border-color: var(--accent); }
- .filter-row input::placeholder { color: var(--dim); }
- .filter-row select option { background: #1c2030; }
-
- /* Table */
- .table-wrap {
- background: var(--surface);
- border: 1px solid var(--border);
- border-radius: var(--radius-lg);
- overflow: hidden;
- }
- .table-scroll { overflow-x: auto; }
- table { width: 100%; border-collapse: collapse; }
- thead th {
- font-size: 11px; font-weight: 500; color: var(--muted);
- text-transform: uppercase; letter-spacing: 0.05em;
- padding: 10px 14px; text-align: left;
- background: var(--surface2);
- border-bottom: 1px solid var(--border);
- white-space: nowrap; cursor: pointer; user-select: none;
- transition: color 0.15s;
- }
- thead th:hover { color: var(--text); }
- thead th.sorted { color: var(--accent); }
- tbody tr {
- border-bottom: 1px solid var(--border);
- transition: background 0.1s;
- }
- tbody tr:last-child { border-bottom: none; }
- tbody tr:hover { background: var(--surface2); }
- tbody td { padding: 9px 14px; vertical-align: middle; }
-
- .rank-num { font-size: 13px; font-weight: 600; color: var(--muted); width: 50px; }
- .rank-num.top3 { color: var(--gold); }
- .tag-cell {
- font-size: 11px; font-weight: 600; color: var(--accent);
- background: var(--accent-dim); border-radius: 4px;
- padding: 2px 7px; display: inline-block;
- letter-spacing: 0.03em; white-space: nowrap;
- }
- .name-cell { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
- .rep-cell { font-variant-numeric: tabular-nums; color: var(--text); text-align: right; white-space: nowrap; }
- .delta-cell { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
- .rank-delta-cell { text-align: right; white-space: nowrap; }
-
- .pos { color: var(--green); }
- .neg { color: var(--red); }
- .neutral { color: var(--dim); }
-
- .rank-up { color: var(--green); font-size: 12px; }
- .rank-dn { color: var(--red); font-size: 12px; }
- .rank-same { color: var(--dim); }
-
- .badge-new {
- font-size: 10px; font-weight: 600; background: rgba(251,191,36,0.15);
- color: var(--amber); border: 1px solid rgba(251,191,36,0.3);
- padding: 2px 7px; border-radius: 4px; letter-spacing: 0.03em;
- }
-
-
- /* Empty state */
- .empty {
- text-align: center; padding: 4rem 2rem;
- color: var(--muted); font-size: 14px;
- }
- .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
- .empty p { margin-top: 6px; font-size: 13px; }
-
- /* Footer */
- footer {
- margin-top: 2rem; padding-top: 1rem;
- border-top: 1px solid var(--border);
- font-size: 11px; color: var(--dim);
- display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
- }
-
- /* Spinner */
- @keyframes spin { to { transform: rotate(360deg); } }
- .spin { display: inline-block; animation: spin 0.8s linear infinite; }
-
- /* Toast */
- #toast {
- position: fixed; bottom: 1.5rem; right: 1.5rem;
- background: var(--surface2); border: 1px solid var(--border2);
- border-radius: var(--radius); padding: 10px 16px;
- font-size: 13px; color: var(--text);
- opacity: 0; transform: translateY(8px);
- transition: all 0.25s; pointer-events: none; z-index: 100;
- }
- #toast.show { opacity: 1; transform: translateY(0); }
-
- /* Trend indicator on guild name */
- .trend-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
-
- /* Modal */
- .modal-overlay {
- position: fixed; inset: 0; background: rgba(0,0,0,0.7);
- z-index: 200; display: flex; align-items: center; justify-content: center;
- opacity: 0; pointer-events: none; transition: opacity 0.2s;
- }
- .modal-overlay.open { opacity: 1; pointer-events: all; }
- .modal {
- background: var(--surface); border: 1px solid var(--border2);
- border-radius: var(--radius-lg); padding: 24px 28px;
- width: min(700px, 95vw); max-height: 90vh; overflow-y: auto;
- position: relative;
- }
- .modal-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
- .modal-title { font-size: 17px; font-weight: 600; }
- .modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
- .modal-close {
- background: none; border: none; color: var(--muted); font-size: 20px;
- cursor: pointer; padding: 0 4px; line-height: 1;
- }
- .modal-close:hover { color: var(--text); }
- .chart-wrap { width: 100%; height: 260px; position: relative; }
- canvas#guild-chart { width: 100% !important; height: 100% !important; }
- .modal-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 20px; }
- .mstat { background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; }
- .mstat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
- .mstat-value { font-size: 18px; font-weight: 600; }
-</style>
+<title>AO Leaderboard Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0d0f14;
+  --surface: #151820;
+  --surface2: #1c2030;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e8eaf0;
+  --muted: #7a8099;
+  --dim: #454d66;
+  --accent: #6c8ef7;
+  --accent-dim: rgba(108,142,247,0.12);
+  --green: #4ade80;
+  --red: #f87171;
+  --amber: #fbbf24;
+  --gold: #f5c842;
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter','Segoe UI',system-ui,sans-serif; font-size: 14px; min-height: 100vh; }
+body::before { content:''; position:fixed; inset:0; background-image: linear-gradient(rgba(108,142,247,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(108,142,247,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
+.page { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+
+/* Header */
+header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); }
+.header-left { display:flex; align-items:center; gap:14px; }
+.logo { width:42px; height:42px; border-radius:var(--radius); background:linear-gradient(135deg,#2a3a7a,#4a5fb5); display:flex; align-items:center; justify-content:center; font-size:20px; border:1px solid rgba(108,142,247,0.3); }
+h1 { font-size:20px; font-weight:600; letter-spacing:-0.02em; }
+h1 span { color:var(--accent); }
+.subtitle { font-size:12px; color:var(--muted); margin-top:2px; }
+
+/* Buttons */
+button { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:var(--radius); font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--border2); background:var(--surface2); color:var(--text); transition:all 0.15s; }
+button:hover { background:var(--surface); border-color:rgba(255,255,255,0.2); }
+button:active { transform:scale(0.97); }
+button:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+.btn-primary { background:var(--accent); border-color:transparent; color:#fff; }
+.btn-primary:hover { background:#5a7ef5; }
+
+/* Tabs */
+.tabs { display:flex; gap:4px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0; }
+.tab-btn { padding:8px 20px; border-radius:var(--radius) var(--radius) 0 0; border:1px solid transparent; border-bottom:none; background:none; color:var(--muted); font-size:14px; font-weight:500; cursor:pointer; position:relative; top:1px; transition:all 0.15s; }
+.tab-btn:hover { color:var(--text); background:var(--surface); }
+.tab-btn.active { background:var(--surface); border-color:var(--border); color:var(--accent); }
+
+/* Status bar */
+.status-bar { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin-bottom:1.5rem; flex-wrap:wrap; }
+.dot { width:6px; height:6px; border-radius:50%; background:var(--dim); display:inline-block; }
+.dot.live { background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+.sep { color:var(--dim); }
+
+/* Summary cards */
+.summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-bottom:1.5rem; }
+.scard { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; transition:border-color 0.2s; }
+.scard:hover { border-color:var(--border2); }
+.scard-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; }
+.scard-value { font-size:22px; font-weight:600; letter-spacing:-0.02em; }
+.scard-sub { font-size:11px; color:var(--muted); margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.scard-value.green { color:var(--green); }
+
+/* Filter row */
+.filter-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+.filter-row input, .filter-row select { background:var(--surface); border:1px solid var(--border2); color:var(--text); border-radius:var(--radius); padding:7px 11px; font-size:13px; outline:none; transition:border-color 0.15s; }
+.filter-row input { width:220px; }
+.filter-row input:focus, .filter-row select:focus { border-color:var(--accent); }
+.filter-row input::placeholder { color:var(--dim); }
+.filter-row select option { background:#1c2030; }
+
+/* Table */
+.table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
+.table-scroll { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; }
+thead th { font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; padding:10px 14px; text-align:left; background:var(--surface2); border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer; user-select:none; transition:color 0.15s; }
+thead th:hover { color:var(--text); }
+thead th.sorted { color:var(--accent); }
+tbody tr { border-bottom:1px solid var(--border); transition:background 0.1s; }
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:var(--surface2); }
+tbody td { padding:9px 14px; vertical-align:middle; }
+.rank-num { font-size:13px; font-weight:600; color:var(--muted); width:50px; }
+.rank-num.top3 { color:var(--gold); }
+.name-cell { font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+.rep-cell { font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
+.delta-cell { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.rank-delta-cell { text-align:right; white-space:nowrap; }
+.pos { color:var(--green); }
+.neg { color:var(--red); }
+.neutral { color:var(--dim); }
+.rank-up { color:var(--green); font-size:12px; }
+.rank-dn { color:var(--red); font-size:12px; }
+.badge-new { font-size:10px; font-weight:600; background:rgba(251,191,36,0.15); color:var(--amber); border:1px solid rgba(251,191,36,0.3); padding:2px 7px; border-radius:4px; }
+
+/* Empty */
+.empty { text-align:center; padding:4rem 2rem; color:var(--muted); font-size:14px; }
+.empty p { margin-top:6px; font-size:13px; }
+
+/* Footer */
+footer { margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+/* Spinner / Toast */
+@keyframes spin { to{transform:rotate(360deg)} }
+.spin { display:inline-block; animation:spin 0.8s linear infinite; }
+#toast { position:fixed; bottom:1.5rem; right:1.5rem; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius); padding:10px 16px; font-size:13px; color:var(--text); opacity:0; transform:translateY(8px); transition:all 0.25s; pointer-events:none; z-index:100; }
+#toast.show { opacity:1; transform:translateY(0); }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal { background:var(--surface); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:24px 28px; width:min(700px,95vw); max-height:90vh; overflow-y:auto; }
+.modal-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
+.modal-title { font-size:17px; font-weight:600; }
+.modal-sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
+.modal-close { background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; padding:0 4px; line-height:1; }
+.modal-close:hover { color:var(--text); }
+.chart-wrap { width:100%; height:260px; }
+canvas#main-chart { width:100% !important; height:100% !important; }
+.modal-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-top:20px; }
+.mstat { background:var(--surface2); border-radius:var(--radius); padding:10px 14px; }
+.mstat-label { font-size:11px; color:var(--muted); margin-bottom:4px; }
+.mstat-value { font-size:18px; font-weight:600; }
+
+/* Tab panels */
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+</style>
 </head>
 <body>
-
 <div class="page">
- <header>
- <div class="header-left">
- <div class="logo"></div>
- <div>
- <h1>Arcane Odyssey <span>Guild Tracker</span></h1>
- <div class="subtitle">Reputation leaderboard • updated hourly via GitHub Actions</div>
- </div>
- </div>
- <div class="header-right">
- <span class="dot live" id="live-dot"></span>
- <button class="btn-primary" id="fetch-btn" onclick="fetchNow()">Fetch now</button>
- </div>
- </header>
+  <header>
+    <div class="header-left">
+      <div class="logo">⚓</div>
+      <div>
+        <h1>Arcane Odyssey <span>Leaderboards</span></h1>
+        <div class="subtitle">Updated hourly via GitHub Actions</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="dot live"></span>
+      <button class="btn-primary" id="fetch-btn" onclick="fetchNow()">Fetch now</button>
+    </div>
+  </header>
 
- <div class="status-bar">
- <span id="status-text">No data yet</span>
- <span class="sep">·</span>
- <span id="snapshot-label">0 snapshots stored</span>
- <span class="sep">·</span>
- <span id="next-refresh-label">Auto-refresh in 60:00</span>
- </div>
+  <div class="status-bar">
+    <span id="status-text">No data yet</span>
+    <span class="sep">·</span>
+    <span id="snapshot-label"></span>
+    <span class="sep">·</span>
+    <span id="next-refresh-label">Auto-refresh in 60:00</span>
+  </div>
 
- <div class="summary-grid" id="summary-grid">
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('guilds')">Guilds</button>
+    <button class="tab-btn" onclick="switchTab('clans')">Clans</button>
+    <button class="tab-btn" onclick="switchTab('ranked')">Ranked</button>
+  </div>
 
- <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="sc-gainer">—</div><div class="scard-sub" id="sc-gainer-sub">need 2+ snapshots</div></div>
+  <!-- Guild tab -->
+  <div class="tab-panel active" id="panel-guilds">
+    <div class="summary-grid">
+      <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="guilds-sc-gainer">—</div><div class="scard-sub" id="guilds-sc-gainer-sub">need 2+ snapshots</div></div>
+      <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="guilds-sc-climber">—</div><div class="scard-sub" id="guilds-sc-climber-sub">need 2+ snapshots</div></div>
+    </div>
+    <div class="filter-row">
+      <select id="guilds-range" onchange="renderTab('guilds')">
+        <option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option>
+      </select>
+      <input type="text" id="guilds-search" placeholder="Search guild name…" oninput="renderTab('guilds')">
+      <select id="guilds-sort" onchange="renderTab('guilds')">
+        <option value="rank">Sort: rank</option><option value="rep_delta">Sort: rep gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total rep</option>
+      </select>
+      <select id="guilds-filter" onchange="renderTab('guilds')">
+        <option value="all">All guilds</option><option value="rising">Gained rep only</option><option value="new">New entries</option>
+      </select>
+      <span id="guilds-row-count" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div id="guilds-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr>
+        <th onclick="setSort('guilds','rank')"># Rank</th>
+        <th onclick="setSort('guilds','name')">Guild</th>
+        <th onclick="setSort('guilds','rep')" style="text-align:right">Reputation</th>
+        <th onclick="setSort('guilds','rep_delta')" style="text-align:right">Rep change</th>
+        <th onclick="setSort('guilds','rank_delta')" style="text-align:right">Rank Δ</th>
+      </tr></thead>
+      <tbody id="guilds-tbody"><tr><td colspan="5"><div class="empty"><strong>No data loaded yet</strong><p>Click "Fetch now" to load.</p></div></td></tr></tbody>
+    </table></div></div>
+  </div>
 
- <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="sc-climber">—</div><div class="scard-sub" id="sc-climber-sub">need 2+ snapshots</div></div>
- </div>
+  <!-- Clan tab -->
+  <div class="tab-panel" id="panel-clans">
+    <div class="summary-grid">
+      <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="clans-sc-gainer">—</div><div class="scard-sub" id="clans-sc-gainer-sub">need 2+ snapshots</div></div>
+      <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="clans-sc-climber">—</div><div class="scard-sub" id="clans-sc-climber-sub">need 2+ snapshots</div></div>
+    </div>
+    <div class="filter-row">
+      <select id="clans-range" onchange="renderTab('clans')">
+        <option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option>
+      </select>
+      <input type="text" id="clans-search" placeholder="Search clan name…" oninput="renderTab('clans')">
+      <select id="clans-sort" onchange="renderTab('clans')">
+        <option value="rank">Sort: rank</option><option value="rep_delta">Sort: rep gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total rep</option>
+      </select>
+      <select id="clans-filter" onchange="renderTab('clans')">
+        <option value="all">All clans</option><option value="rising">Gained rep only</option><option value="new">New entries</option>
+      </select>
+      <span id="clans-row-count" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div id="clans-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr>
+        <th onclick="setSort('clans','rank')"># Rank</th>
+        <th onclick="setSort('clans','name')">Clan</th>
+        <th onclick="setSort('clans','rep')" style="text-align:right">Reputation</th>
+        <th onclick="setSort('clans','rep_delta')" style="text-align:right">Rep change</th>
+        <th onclick="setSort('clans','rank_delta')" style="text-align:right">Rank Δ</th>
+      </tr></thead>
+      <tbody id="clans-tbody"><tr><td colspan="5"><div class="empty"><strong>No data loaded yet</strong><p>Click "Fetch now" to load.</p></div></td></tr></tbody>
+    </table></div></div>
+  </div>
 
- <div class="filter-row">
- <select id="range-select" onchange="updateAll()">
- <option value="7">Past 7 days</option>
- <option value="30">Past 30 days</option>
- <option value="90">Past 3 months</option>
- <option value="180">Past 6 months</option>
- <option value="365">Past 1 year</option>
- <option value="0">All time</option>
- </select>
- <input type="text" id="search-input" placeholder="Search guild name…" oninput="renderTable()">
- <select id="sort-select" onchange="renderTable()">
- <option value="rank">Sort: rank</option>
- <option value="rep_delta">Sort: rep gained</option>
- <option value="rank_delta">Sort: rank climb</option>
- <option value="rep">Sort: total rep</option>
- </select>
- <select id="filter-select" onchange="renderTable()">
- <option value="all">All guilds</option>
- <option value="rising">Gained rep only</option>
- <option value="new">New entries</option>
- </select>
- <span id="row-count" style="font-size:12px;color:var(--muted);margin-left:4px;"></span>
- </div>
- <div id="range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+  <!-- Ranked tab -->
+  <div class="tab-panel" id="panel-ranked">
+    <div class="summary-grid">
+      <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="ranked-sc-gainer">—</div><div class="scard-sub" id="ranked-sc-gainer-sub">need 2+ snapshots</div></div>
+      <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="ranked-sc-climber">—</div><div class="scard-sub" id="ranked-sc-climber-sub">need 2+ snapshots</div></div>
+    </div>
+    <div class="filter-row">
+      <select id="ranked-range" onchange="renderTab('ranked')">
+        <option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option>
+      </select>
+      <input type="text" id="ranked-search" placeholder="Search player name…" oninput="renderTab('ranked')">
+      <select id="ranked-sort" onchange="renderTab('ranked')">
+        <option value="rank">Sort: rank</option><option value="rep_delta">Sort: score gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total score</option>
+      </select>
+      <select id="ranked-filter" onchange="renderTab('ranked')">
+        <option value="all">All players</option><option value="rising">Gained score only</option><option value="new">New entries</option>
+      </select>
+      <span id="ranked-row-count" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div id="ranked-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr>
+        <th onclick="setSort('ranked','rank')"># Rank</th>
+        <th onclick="setSort('ranked','name')">Player</th>
+        <th onclick="setSort('ranked','rep')" style="text-align:right">Score</th>
+        <th onclick="setSort('ranked','rep_delta')" style="text-align:right">Score change</th>
+        <th onclick="setSort('ranked','rank_delta')" style="text-align:right">Rank Δ</th>
+      </tr></thead>
+      <tbody id="ranked-tbody"><tr><td colspan="5"><div class="empty"><strong>No data loaded yet</strong><p>Click "Fetch now" to load.</p></div></td></tr></tbody>
+    </table></div></div>
+  </div>
 
- <div class="table-wrap">
- <div class="table-scroll">
- <table>
- <thead>
- <tr>
- <th onclick="setSort('rank')" id="th-rank" class="sorted"># Rank</th>
- <th onclick="setSort('name')">Guild</th>
- <th onclick="setSort('rep')" id="th-rep" style="text-align:right">Reputation</th>
- <th onclick="setSort('rep_delta')" id="th-rdelta" style="text-align:right">Rep change</th>
- <th onclick="setSort('rank_delta')" id="th-rkdelta" style="text-align:right">Rank Δ</th>
- </tr>
- </thead>
- <tbody id="guild-tbody">
- <tr><td colspan="5">
- <div class="empty">
- <div class="empty-icon">‍️</div>
- <strong>No data loaded yet</strong>
- <p>Click "Fetch now" to pull the latest leaderboard.</p>
- </div>
- </td></tr>
- </tbody>
- </table>
- </div>
- </div>
-
- <footer>
- <span>Data source: <a href="https://leaderboards.arcaneodyssey.dev/guilds" target="_blank" style="color:var(--accent)">leaderboards.arcaneodyssey.dev</a></span>
- <span id="footer-time">—</span>
- </footer>
+  <footer>
+    <span>Data source: <a href="https://leaderboards.arcaneodyssey.dev" target="_blank" style="color:var(--accent)">leaderboards.arcaneodyssey.dev</a></span>
+    <span id="footer-time">—</span>
+  </footer>
 </div>
 
-
+<!-- Modal -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
- <div class="modal">
- <div class="modal-header">
- <span class="modal-title" id="modal-title"></span>
- <button class="modal-close" onclick="closeModalDirect()">x</button>
- </div>
- <div class="modal-sub" id="modal-sub"></div>
- <div class="chart-wrap">
- <canvas id="guild-chart"></canvas>
- </div>
- <div class="modal-stats" id="modal-stats"></div>
- </div>
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title"></span>
+      <button class="modal-close" onclick="closeModalDirect()">x</button>
+    </div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div class="chart-wrap"><canvas id="main-chart"></canvas></div>
+    <div class="modal-stats" id="modal-stats"></div>
+  </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'ao_guild_tracker_v3';
+const STORAGE_KEY = 'ao_tracker_v1';
 const DATA_URL = './data.json';
 
-let snapshots = [];
-let sortKey = 'rank';
-let sortAsc = true;
-let refreshInterval = null;
+// State per tab
+const state = {
+  guilds: { snapshots: [], sort: 'rank', sortAsc: true, rowData: {} },
+  clans:  { snapshots: [], sort: 'rank', sortAsc: true, rowData: {} },
+  ranked: { snapshots: [], sort: 'rank', sortAsc: true, rowData: {} },
+};
+let activeTab = 'guilds';
+let chartInstance = null;
 let countdownInterval = null;
 let secondsToRefresh = 3600;
 
-// ── Storage ──────────────────────────────────────────────
+// ── Storage ───────────────────────────────────────────────
 function load() {
- try { snapshots = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { snapshots = []; }
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (saved.guilds) state.guilds.snapshots = saved.guilds;
+    if (saved.clans)  state.clans.snapshots  = saved.clans;
+    if (saved.ranked) state.ranked.snapshots = saved.ranked;
+  } catch(e) {}
 }
 function save() {
- // Keep last 48 snapshots (~2 days of hourly)
- if (snapshots.length > 48) snapshots = snapshots.slice(-48);
- try { localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshots)); } catch(e) { toast('Storage full — old snapshots may be dropped'); }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      guilds: state.guilds.snapshots,
+      clans:  state.clans.snapshots,
+      ranked: state.ranked.snapshots,
+    }));
+  } catch(e) { toast('Storage full'); }
 }
 
-// ── Fetch & Parse ─────────────────────────────────────────
+// ── Fetch ─────────────────────────────────────────────────
 async function fetchNow() {
- const btn = document.getElementById('fetch-btn');
- btn.disabled = true;
- btn.innerHTML = '<span class="spin">...</span> Loading…';
- setStatus('Loading data.json…');
+  const btn = document.getElementById('fetch-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin">...</span> Loading…';
+  setStatus('Loading data.json…');
 
- try {
- const res = await fetch(DATA_URL + '?t=' + Date.now());
- if (!res.ok) throw new Error(`HTTP ${res.status}`);
- const data = await res.json();
- if (!data.snapshots || !data.snapshots.length) throw new Error('No snapshots in data.json');
+  try {
+    const res = await fetch(DATA_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
 
- // data.json is source of truth — use it directly, don't accumulate locally
- snapshots = data.snapshots.slice().sort((a, b) => a.ts - b.ts);
- save();
- updateAll();
+    if (data.guilds && data.guilds.length) state.guilds.snapshots = data.guilds.slice().sort((a,b)=>a.ts-b.ts);
+    if (data.clans  && data.clans.length)  state.clans.snapshots  = data.clans.slice().sort((a,b)=>a.ts-b.ts);
+    if (data.ranked && data.ranked.length) state.ranked.snapshots = data.ranked.slice().sort((a,b)=>a.ts-b.ts);
 
- const latest = new Date(snapshots[snapshots.length - 1].ts);
- setStatus(`Data updated: ${latest.toLocaleString()}`);
- toast(`Loaded ${snapshots.length} snapshot${snapshots.length !== 1 ? 's' : ''}`);
- } catch(err) {
- console.warn('Load failed:', err);
- setStatus(`Load failed: ${err.message}`);
- toast('️ Could not load data.json');
- }
+    save();
+    renderAll();
 
- btn.disabled = false;
- btn.innerHTML = 'Refresh';
- resetCountdown();
-}
-
-
-
-
-function addSnapshot(guilds) {
- snapshots.push({ ts: Date.now(), guilds });
- save();
- updateAll();
-}
-
-// ── Diff ──────────────────────────────────────────────────
-
-// Find the snapshot closest to a given timestamp
-function getSnapshotNear(targetTs) {
-  if (!snapshots.length) return null;
-  return snapshots.reduce((best, s) =>
-    Math.abs(s.ts - targetTs) < Math.abs(best.ts - targetTs) ? s : best
-  );
-}
-
-function getSelectedDays() {
-  const el = document.getElementById('range-select');
-  return el ? parseInt(el.value) : 7;
-}
-
-// Returns { curr, prev, rangeLabel, prevDate }
-function getSnapshotPair() {
-  if (!snapshots.length) return null;
-  const curr = snapshots[snapshots.length - 1];
-  const days = getSelectedDays();
-  const oldest = snapshots[0];
-
-  // All time: always use oldest snapshot
-  if (days === 0) {
-    return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: false };
+    const snaps = state[activeTab].snapshots;
+    const latest = snaps.length ? new Date(snaps[snaps.length-1].ts) : null;
+    setStatus(latest ? `Data updated: ${latest.toLocaleString()}` : 'Loaded');
+    toast('Loaded');
+  } catch(err) {
+    setStatus(`Load failed: ${err.message}`);
+    toast('Could not load data.json');
   }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Refresh';
+  resetCountdown();
+}
+
+// ── Tab switching ─────────────────────────────────────────
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['guilds','clans','ranked'][i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  updateSnapshotLabel();
+}
+
+// ── Diff logic (shared) ───────────────────────────────────
+function getSnapshotNear(snaps, targetTs) {
+  return snaps.reduce((best,s) => Math.abs(s.ts-targetTs) < Math.abs(best.ts-targetTs) ? s : best);
+}
+
+function getSnapshotPair(tab) {
+  const snaps = state[tab].snapshots;
+  if (!snaps.length) return null;
+  const curr = snaps[snaps.length-1];
+  const oldest = snaps[0];
+  const days = parseInt(document.getElementById(tab+'-range').value);
+
+  if (days === 0) return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: false };
 
   const cutoff = curr.ts - days * 24 * 60 * 60 * 1000;
-
-  // Only use the range if we have a snapshot that actually reaches back far enough.
-  // Allow up to 20% tolerance (e.g. for 7 days, accept a snapshot up to 8.4 days old).
   const tolerance = days * 24 * 60 * 60 * 1000 * 0.2;
-  const hasOldEnoughData = oldest.ts <= cutoff + tolerance;
+  if (oldest.ts > cutoff + tolerance) return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: true };
 
-  if (!hasOldEnoughData) {
-    // Not enough history — fall back to all-time (oldest snapshot)
-    return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: true };
-  }
-
-  // We have enough data — find the snapshot closest to the cutoff
-  const prev = getSnapshotNear(cutoff);
-  return { curr, prev, fellBack: false };
+  return { curr, prev: getSnapshotNear(snaps, cutoff), fellBack: false };
 }
 
 function diffSnapshots(curr, prev) {
-  if (!prev) return curr.guilds.map(g => ({ ...g, repDelta: null, rankDelta: null, isNew: false }));
+  if (!curr.guilds || !curr.guilds.length) return [];
+  if (!prev || !prev.guilds) return curr.guilds.map(g => ({...g, repDelta:null, rankDelta:null, isNew:false}));
 
   const prevGroups = {};
   for (const g of prev.guilds) {
-    const k = g.name + '|' + g.abbr;
+    const k = g.name+'|'+(g.abbr||'');
     if (!prevGroups[k]) prevGroups[k] = [];
     prevGroups[k].push(g);
   }
-
   const used = new Set();
   return curr.guilds.map(g => {
-    const k = g.name + '|' + g.abbr;
-    const candidates = (prevGroups[k] || []).filter(c => !used.has(c.rank));
-    if (!candidates.length) return { ...g, repDelta: null, rankDelta: null, isNew: true };
-    const best = candidates.reduce((a, b) => Math.abs(a.rank - g.rank) <= Math.abs(b.rank - g.rank) ? a : b);
+    const k = g.name+'|'+(g.abbr||'');
+    const candidates = (prevGroups[k]||[]).filter(c=>!used.has(c.rank));
+    if (!candidates.length) return {...g, repDelta:null, rankDelta:null, isNew:true};
+    const best = candidates.reduce((a,b) => Math.abs(a.rank-g.rank)<=Math.abs(b.rank-g.rank)?a:b);
     used.add(best.rank);
-    return { ...g, repDelta: g.rep - best.rep, rankDelta: best.rank - g.rank, isNew: false };
+    return {...g, repDelta:g.rep-best.rep, rankDelta:best.rank-g.rank, isNew:false};
   });
 }
 
-function getDiffs() {
-  const pair = getSnapshotPair();
-  if (!pair) return [];
-  return diffSnapshots(pair.curr, pair.prev);
+// ── Render all tabs ───────────────────────────────────────
+function renderAll() {
+  ['guilds','clans','ranked'].forEach(t => renderTab(t));
+  updateSnapshotLabel();
+  const snaps = state[activeTab].snapshots;
+  if (snaps.length) document.getElementById('footer-time').textContent = `Snapshot: ${new Date(snaps[snaps.length-1].ts).toLocaleString()}`;
 }
 
+function updateSnapshotLabel() {
+  const n = state[activeTab].snapshots.length;
+  document.getElementById('snapshot-label').textContent = n ? `${n} snapshot${n!==1?'s':''} stored` : '';
+}
 
-// ── Render ────────────────────────────────────────────────
-function updateAll() {
-  updateRangeInfo();
-  updateSummary();
-  renderTable();
-  document.getElementById('snapshot-label').textContent = `${snapshots.length} snapshot${snapshots.length!==1?'s':''} stored`;
-  if (snapshots.length) {
-    const ts = new Date(snapshots[snapshots.length-1].ts);
-    document.getElementById('footer-time').textContent = `Snapshot: ${ts.toLocaleString()}`;
+function renderTab(tab) {
+  const snaps = state[tab].snapshots;
+  const pair = getSnapshotPair(tab);
+
+  // Range info
+  const ri = document.getElementById(tab+'-range-info');
+  if (!snaps.length) { ri.textContent = ''; }
+  else if (!pair || !pair.prev) { ri.textContent = 'Only one snapshot available — check back later.'; }
+  else {
+    const note = pair.fellBack ? ' (not enough data — showing all-time)' : '';
+    ri.textContent = `Comparing: ${new Date(pair.prev.ts).toLocaleString()}  →  ${new Date(pair.curr.ts).toLocaleString()}${note}`;
   }
-}
 
-function updateRangeInfo() {
-  const el = document.getElementById('range-info');
-  if (!el || !snapshots.length) return;
-  const pair = getSnapshotPair();
-  if (!pair || !pair.prev) {
-    el.textContent = 'Only one snapshot available — check back later.';
-    return;
-  }
-  const from = new Date(pair.prev.ts).toLocaleString();
-  const to = new Date(pair.curr.ts).toLocaleString();
-  const fallbackNote = pair.fellBack ? ' (not enough data for selected range — showing all-time instead)' : '';
-  el.textContent = `Comparing: ${from}  →  ${to}${fallbackNote}`;
-}
-
-function updateSummary() {
-  if (!snapshots.length) return;
-  const diffs = getDiffs();
+  // Summary cards
+  const diffs = pair ? diffSnapshots(pair.curr, pair.prev) : [];
   const withDelta = diffs.filter(g => g.repDelta !== null && g.repDelta > 0);
   if (withDelta.length) {
-    const gainer = withDelta.reduce((a,b) => b.repDelta > a.repDelta ? b : a);
-    document.getElementById('sc-gainer').textContent = '+' + fmt(gainer.repDelta);
-    document.getElementById('sc-gainer-sub').textContent = gainer.name;
-
-    const climber = diffs.filter(g => g.rankDelta !== null && g.rankDelta > 0)
-      .reduce((a,b) => (b.rankDelta||0) > (a.rankDelta||0) ? b : a, {rankDelta:-999, name:''});
-    document.getElementById('sc-climber').textContent = climber.rankDelta > 0 ? '+' + climber.rankDelta : '—';
-    document.getElementById('sc-climber-sub').textContent = climber.rankDelta > 0 ? climber.name : 'no rank changes';
+    const gainer = withDelta.reduce((a,b) => b.repDelta>a.repDelta?b:a);
+    document.getElementById(tab+'-sc-gainer').textContent = '+'+fmt(gainer.repDelta);
+    document.getElementById(tab+'-sc-gainer-sub').textContent = gainer.name;
+    const climber = diffs.filter(g=>g.rankDelta!==null&&g.rankDelta>0).reduce((a,b)=>b.rankDelta>a.rankDelta?b:a,{rankDelta:-999,name:''});
+    document.getElementById(tab+'-sc-climber').textContent = climber.rankDelta>0?'+'+climber.rankDelta:'—';
+    document.getElementById(tab+'-sc-climber-sub').textContent = climber.rankDelta>0?climber.name:'no rank changes';
   } else {
-    document.getElementById('sc-gainer').textContent = '—';
-    document.getElementById('sc-gainer-sub').textContent = 'no gains in range';
-    document.getElementById('sc-climber').textContent = '—';
-    document.getElementById('sc-climber-sub').textContent = 'no rank changes';
+    document.getElementById(tab+'-sc-gainer').textContent = '—';
+    document.getElementById(tab+'-sc-gainer-sub').textContent = snaps.length<2?'need 2+ snapshots':'no gains in range';
+    document.getElementById(tab+'-sc-climber').textContent = '—';
+    document.getElementById(tab+'-sc-climber-sub').textContent = snaps.length<2?'need 2+ snapshots':'no rank changes';
   }
+
+  // Table
+  let rows = diffs.length ? diffs : (snaps.length && snaps[snaps.length-1].guilds ? snaps[snaps.length-1].guilds.map(g=>({...g,repDelta:null,rankDelta:null,isNew:false})) : []);
+
+  const q = document.getElementById(tab+'-search').value.toLowerCase();
+  if (q) rows = rows.filter(g => g.name.toLowerCase().includes(q) || (g.abbr||'').toLowerCase().includes(q));
+
+  const f = document.getElementById(tab+'-filter').value;
+  if (f==='rising') rows = rows.filter(g=>g.repDelta!==null&&g.repDelta>0);
+  else if (f==='new') rows = rows.filter(g=>g.isNew);
+
+  const sk = document.getElementById(tab+'-sort').value;
+  const st = state[tab];
+  if (sk==='rep_delta') rows.sort((a,b)=>(b.repDelta||0)-(a.repDelta||0));
+  else if (sk==='rank_delta') rows.sort((a,b)=>(b.rankDelta||0)-(a.rankDelta||0));
+  else if (sk==='rep') rows.sort((a,b)=>b.rep-a.rep);
+  else if (sk==='name') rows.sort((a,b)=>a.name.localeCompare(b.name));
+  else rows.sort((a,b)=>a.rank-b.rank);
+
+  const label = tab==='ranked'?'player':tab.slice(0,-1);
+  document.getElementById(tab+'-row-count').textContent = rows.length ? `${rows.length} ${label}${rows.length!==1?'s':''}` : '';
+
+  st.rowData = {};
+  rows.forEach(g => st.rowData[g.rank] = g);
+
+  const tbody = document.getElementById(tab+'-tbody');
+  const colLabel = tab==='ranked' ? 'Score' : 'Rep';
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><strong>No data</strong><p>${snaps.length?'Try a different filter.':'Click Fetch now to load.'}</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(g => {
+    const rankClass = g.rank<=3?'rank-num top3':'rank-num';
+    const repDeltaHtml = g.repDelta!==null
+      ? `<span class="${g.repDelta>0?'pos':g.repDelta<0?'neg':'neutral'}">${g.repDelta>0?'+':''}${fmt(g.repDelta)}</span>`
+      : `<span class="neutral">—</span>`;
+    let rankDeltaHtml;
+    if (g.isNew) rankDeltaHtml = `<span class="badge-new">NEW</span>`;
+    else if (g.rankDelta===null) rankDeltaHtml = `<span class="neutral">—</span>`;
+    else if (g.rankDelta>0) rankDeltaHtml = `<span class="rank-up">▲ ${g.rankDelta}</span>`;
+    else if (g.rankDelta<0) rankDeltaHtml = `<span class="rank-dn">▼ ${Math.abs(g.rankDelta)}</span>`;
+    else rankDeltaHtml = `<span class="neutral">—</span>`;
+
+    return `<tr>
+      <td class="${rankClass}">#${g.rank}</td>
+      <td class="name-cell" title="${esc(g.name)}" style="cursor:pointer" onclick="openModal('${tab}',${g.rank})">${esc(g.name)}</td>
+      <td class="rep-cell">${fmt(g.rep)}</td>
+      <td class="delta-cell">${repDeltaHtml}</td>
+      <td class="rank-delta-cell">${rankDeltaHtml}</td>
+    </tr>`;
+  }).join('');
 }
 
-function renderTable() {
- if (!snapshots.length) return;
- let rows = getDiffs();
-
- // Search
- const q = document.getElementById('search-input').value.toLowerCase();
- if (q) rows = rows.filter(g => g.name.toLowerCase().includes(q) || g.abbr.toLowerCase().includes(q));
-
- // Filter
- const f = document.getElementById('filter-select').value;
- if (f === 'rising') rows = rows.filter(g => g.repDelta !== null && g.repDelta > 0);
- else if (f === 'new') rows = rows.filter(g => g.isNew);
-
- // Sort
- const sk = document.getElementById('sort-select').value;
- const dir = sortAsc ? 1 : -1;
- if (sk === 'rep_delta') rows.sort((a,b) => dir*((b.repDelta||0)-(a.repDelta||0)));
- else if (sk === 'rank_delta') rows.sort((a,b) => dir*((b.rankDelta||0)-(a.rankDelta||0)));
- else if (sk === 'rep') rows.sort((a,b) => dir*(b.rep-a.rep));
- else if (sk === 'name') rows.sort((a,b) => dir*a.name.localeCompare(b.name));
- else rows.sort((a,b) => a.rank-b.rank);
-
- document.getElementById('row-count').textContent = `${rows.length} guild${rows.length!==1?'s':''}`;
-
- const tbody = document.getElementById('guild-tbody');
- if (!rows.length) {
- tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon"></div><strong>No guilds match</strong><p>Try a different filter or search term.</p></div></td></tr>';
- return;
- }
-
- window._guildRowData = {};
- rows.forEach(g => { window._guildRowData[g.rank] = g; });
-
- tbody.innerHTML = rows.map(g => {
- const isTop3 = g.rank <= 3;
- const rankClass = isTop3 ? 'rank-num top3' : 'rank-num';
- 
- const repDeltaHtml = g.repDelta !== null
- ? `<span class="${g.repDelta>0?'pos':g.repDelta<0?'neg':'neutral'}">${g.repDelta>0?'+':''}${fmt(g.repDelta)}</span>`
- : `<span class="neutral">—</span>`;
-
- let rankDeltaHtml;
- if (g.isNew) {
- rankDeltaHtml = `<span class="badge-new">NEW</span>`;
- } else if (g.rankDelta === null) {
- rankDeltaHtml = `<span class="neutral">—</span>`;
- } else if (g.rankDelta > 0) {
- rankDeltaHtml = `<span class="rank-up">▲ ${g.rankDelta}</span>`;
- } else if (g.rankDelta < 0) {
- rankDeltaHtml = `<span class="rank-dn">▼ ${Math.abs(g.rankDelta)}</span>`;
- } else {
- rankDeltaHtml = `<span class="neutral">—</span>`;
- }
-
-
- return `<tr>
- <td class="${rankClass}">#${g.rank}</td>
- <td class="name-cell" title="${esc(g.name)}" style="cursor:pointer;" onclick="openModal(${g.rank})">${esc(g.name)}</td>
- <td class="rep-cell">${fmtRep(g.rep)}</td>
- <td class="delta-cell">${repDeltaHtml}</td>
- <td class="rank-delta-cell">${rankDeltaHtml}</td>
- </tr>`;
- }).join('');
+// ── Sort ──────────────────────────────────────────────────
+function setSort(tab, key) {
+  const st = state[tab];
+  if (st.sort===key) st.sortAsc = !st.sortAsc;
+  else { st.sort=key; st.sortAsc=false; }
+  document.getElementById(tab+'-sort').value = key;
+  renderTab(tab);
 }
 
-
-// ── Helpers ───────────────────────────────────────────────
-function fmt(n) { return n.toLocaleString(); }
-function fmtRep(n) { return n.toLocaleString(); }
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function setStatus(t) { document.getElementById('status-text').textContent = t; }
-function toast(msg) {
- const el = document.getElementById('toast');
- el.textContent = msg; el.classList.add('show');
- setTimeout(() => el.classList.remove('show'), 3000);
-}
-function setSort(key) {
- if (sortKey === key) sortAsc = !sortAsc;
- else { sortKey = key; sortAsc = false; }
- document.getElementById('sort-select').value = key === 'rank' ? 'rank' : key === 'rep_delta' ? 'rep_delta' : key === 'rank_delta' ? 'rank_delta' : key === 'rep' ? 'rep' : 'rank';
- renderTable();
-}
-
-
-// ── Countdown ─────────────────────────────────────────────
-function resetCountdown() {
- secondsToRefresh = 3600;
- clearInterval(countdownInterval);
- countdownInterval = setInterval(() => {
- secondsToRefresh--;
- const m = String(Math.floor(secondsToRefresh/60)).padStart(2,'0');
- const s = String(secondsToRefresh%60).padStart(2,'0');
- document.getElementById('next-refresh-label').textContent = `Auto-refresh in ${m}:${s}`;
- if (secondsToRefresh <= 0) {
- fetchNow();
- }
- }, 1000);
-}
-
-
-
-// ── Modal / Chart ─────────────────────────────────────────
-let chartInstance = null;
-
-function getGuildHistory(g) {
-  // Returns [{ts, rep}, ...] across all snapshots
+// ── Modal ─────────────────────────────────────────────────
+function getHistory(tab, g) {
   let lastRank = g.rank;
   const result = [];
-  for (const s of snapshots) {
-    const key = g.name + '|' + g.abbr;
-    const candidates = s.guilds.filter(x => x.name + '|' + x.abbr === key);
+  for (const s of state[tab].snapshots) {
+    if (!s.guilds) continue;
+    const key = g.name+'|'+(g.abbr||'');
+    const candidates = s.guilds.filter(x => x.name+'|'+(x.abbr||'')===key);
     if (!candidates.length) continue;
-    const best = candidates.reduce((a, b) => Math.abs(a.rank - lastRank) <= Math.abs(b.rank - lastRank) ? a : b);
+    const best = candidates.reduce((a,b)=>Math.abs(a.rank-lastRank)<=Math.abs(b.rank-lastRank)?a:b);
     lastRank = best.rank;
-    result.push({ ts: s.ts, rep: best.rep });
+    result.push({ts:s.ts, rep:best.rep});
   }
   return result;
 }
 
-function openModal(rank) {
-  const g = window._guildRowData[rank];
+function openModal(tab, rank) {
+  const g = state[tab].rowData[rank];
   if (!g) return;
-  const history = getGuildHistory(g);
+  const history = getHistory(tab, g);
   const overlay = document.getElementById('modal-overlay');
   document.getElementById('modal-title').textContent = g.name;
 
   if (history.length < 2) {
-    document.getElementById('modal-sub').textContent = 'Not enough data yet — check back after more snapshots are collected.';
+    document.getElementById('modal-sub').textContent = 'Not enough data yet — check back after more snapshots.';
     document.getElementById('modal-stats').innerHTML = '';
+    if (chartInstance) { chartInstance.destroy(); chartInstance=null; }
     overlay.classList.add('open');
     return;
   }
 
-  const labels = history.map(h => new Date(h.ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }));
-  const data = history.map(h => h.rep);
-  const totalGain = data[data.length - 1] - data[0];
-  const from = new Date(history[0].ts).toLocaleDateString();
-  const to = new Date(history[history.length - 1].ts).toLocaleDateString();
-
-  document.getElementById('modal-sub').textContent = `${from} — ${to}  ·  ${history.length} snapshots`;
-
-  // Stats
-  const gains = [];
-  for (let i = 1; i < data.length; i++) gains.push(data[i] - data[i-1]);
+  const labels = history.map(h=>new Date(h.ts).toLocaleDateString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
+  const data = history.map(h=>h.rep);
+  const totalGain = data[data.length-1]-data[0];
+  const gains = []; for(let i=1;i<data.length;i++) gains.push(data[i]-data[i-1]);
   const maxGain = Math.max(...gains);
-  const avgGain = gains.reduce((a,b)=>a+b,0) / gains.length;
+  const avgGain = gains.reduce((a,b)=>a+b,0)/gains.length;
+  const scoreLabel = tab==='ranked'?'score':'rep';
 
+  document.getElementById('modal-sub').textContent = `${new Date(history[0].ts).toLocaleDateString()} — ${new Date(history[history.length-1].ts).toLocaleDateString()}  ·  ${history.length} snapshots`;
   document.getElementById('modal-stats').innerHTML = `
-    <div class="mstat"><div class="mstat-label">Total gained</div><div class="mstat-value" style="color:var(--green)">+${fmtRep(totalGain)}</div></div>
-    <div class="mstat"><div class="mstat-label">Current rep</div><div class="mstat-value">${fmtRep(g.rep)}</div></div>
-    <div class="mstat"><div class="mstat-label">Best single gain</div><div class="mstat-value" style="color:var(--accent)">+${fmtRep(maxGain)}</div></div>
-    <div class="mstat"><div class="mstat-label">Avg per snapshot</div><div class="mstat-value">+${fmtRep(Math.round(avgGain))}</div></div>
+    <div class="mstat"><div class="mstat-label">Total gained</div><div class="mstat-value" style="color:var(--green)">+${fmt(totalGain)}</div></div>
+    <div class="mstat"><div class="mstat-label">Current ${scoreLabel}</div><div class="mstat-value">${fmt(g.rep)}</div></div>
+    <div class="mstat"><div class="mstat-label">Best single gain</div><div class="mstat-value" style="color:var(--accent)">+${fmt(maxGain)}</div></div>
+    <div class="mstat"><div class="mstat-label">Avg per snapshot</div><div class="mstat-value">+${fmt(Math.round(avgGain))}</div></div>
     <div class="mstat"><div class="mstat-label">Current rank</div><div class="mstat-value">#${g.rank}</div></div>
   `;
 
-  // Draw chart
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-  const ctx = document.getElementById('guild-chart').getContext('2d');
+  if (chartInstance) { chartInstance.destroy(); chartInstance=null; }
+  const ctx = document.getElementById('main-chart').getContext('2d');
   chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Reputation',
-        data,
-        borderColor: '#6c8ef7',
-        backgroundColor: 'rgba(108,142,247,0.08)',
-        borderWidth: 2,
-        pointRadius: history.length > 30 ? 0 : 3,
-        pointHoverRadius: 5,
-        fill: true,
-        tension: 0.3,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ' ' + fmtRep(ctx.parsed.y) + ' rep'
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: '#7a8099', maxTicksLimit: 8, maxRotation: 0 },
-          grid: { color: 'rgba(255,255,255,0.04)' }
-        },
-        y: {
-          ticks: { color: '#7a8099', callback: v => fmtRep(v) },
-          grid: { color: 'rgba(255,255,255,0.04)' }
-        }
+    type:'line',
+    data:{ labels, datasets:[{ data, borderColor:'#6c8ef7', backgroundColor:'rgba(108,142,247,0.08)', borderWidth:2, pointRadius:history.length>30?0:3, pointHoverRadius:5, fill:true, tension:0.3 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' '+fmt(c.parsed.y)+' '+scoreLabel}} },
+      scales:{
+        x:{ticks:{color:'#7a8099',maxTicksLimit:8,maxRotation:0},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'#7a8099',callback:v=>fmt(v)},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
   });
-
   overlay.classList.add('open');
 }
 
-function closeModal(e) {
-  if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
-}
+function closeModal(e) { if (e.target===document.getElementById('modal-overlay')) closeModalDirect(); }
 function closeModalDirect() {
   document.getElementById('modal-overlay').classList.remove('open');
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  if (chartInstance) { chartInstance.destroy(); chartInstance=null; }
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModalDirect(); });
+
+// ── Helpers ───────────────────────────────────────────────
+function fmt(n) { return (n||0).toLocaleString(); }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setStatus(t) { document.getElementById('status-text').textContent = t; }
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ── Countdown ─────────────────────────────────────────────
+function resetCountdown() {
+  secondsToRefresh=3600;
+  clearInterval(countdownInterval);
+  countdownInterval=setInterval(()=>{
+    secondsToRefresh--;
+    const m=String(Math.floor(secondsToRefresh/60)).padStart(2,'0');
+    const s=String(secondsToRefresh%60).padStart(2,'0');
+    document.getElementById('next-refresh-label').textContent=`Auto-refresh in ${m}:${s}`;
+    if(secondsToRefresh<=0) fetchNow();
+  },1000);
+}
 
 // ── Init ──────────────────────────────────────────────────
 load();
-if (snapshots.length) {
- updateAll();
- setStatus(`Last updated: ${new Date(snapshots[snapshots.length-1].ts).toLocaleString()}`);
+if (state.guilds.snapshots.length || state.clans.snapshots.length || state.ranked.snapshots.length) {
+  renderAll();
+  const snaps = state[activeTab].snapshots;
+  if (snaps.length) setStatus(`Last updated: ${new Date(snaps[snaps.length-1].ts).toLocaleString()}`);
 }
 resetCountdown();
 fetchNow();
