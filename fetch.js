@@ -74,12 +74,14 @@ async function scrapeRanked(page) {
       const rankMatch = lines[i].match(/^#(\d+)$/);
       if (rankMatch) {
         const rank = parseInt(rankMatch[1]);
-        const name = lines[i + 1] || '';
-        const scoreStr = (lines[i + 2] || '').replace(/,/g, '');
+        // lines[i+1] is the single-letter avatar initial — skip it
+        const name     = lines[i + 2] || '';
+        const scoreStr = (lines[i + 3] || '').replace(/,/g, '');
         const scoreMatch = scoreStr.match(/^(\d+)$/);
         if (name && scoreMatch && rank <= 500) {
           results.push({ rank, name, rep: parseInt(scoreMatch[1]) });
-          i += 4; continue;
+          i += 5; // #rank, initial, name, score, "Score" label = 5 lines
+          continue;
         }
       }
       i++;
@@ -130,6 +132,7 @@ async function scrapeRanked(page) {
   } else {
     console.warn('No existing data.json found — starting fresh.');
   }
+
   // Ensure all keys exist
   existing.guilds  = existing.guilds  || [];
   existing.clans   = existing.clans   || [];
@@ -138,15 +141,15 @@ async function scrapeRanked(page) {
   const now = Date.now();
 
   if (guilds.length) {
-    existing.guilds = mergeSnapshots(existing.guilds || [], { ts: now, guilds });
+    existing.guilds = mergeSnapshots(existing.guilds, { ts: now, guilds });
     console.log(`Guilds: ${existing.guilds.length} snapshots`);
   }
   if (clans.length) {
-    existing.clans = mergeSnapshots(existing.clans || [], { ts: now, guilds: clans });
+    existing.clans = mergeSnapshots(existing.clans, { ts: now, guilds: clans });
     console.log(`Clans: ${existing.clans.length} snapshots`);
   }
   if (ranked.length) {
-    existing.ranked = mergeSnapshots(existing.ranked || [], { ts: now, guilds: ranked });
+    existing.ranked = mergeSnapshots(existing.ranked, { ts: now, guilds: ranked });
     console.log(`Ranked: ${existing.ranked.length} snapshots`);
   }
 
