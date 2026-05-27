@@ -29,7 +29,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter','Segoe UI
 body::before { content:''; position:fixed; inset:0; background-image: linear-gradient(rgba(108,142,247,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(108,142,247,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
 .page { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
 
-/* Header */
 header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); }
 .header-left { display:flex; align-items:center; gap:14px; }
 .logo { width:42px; height:42px; border-radius:var(--radius); background:linear-gradient(135deg,#2a3a7a,#4a5fb5); display:flex; align-items:center; justify-content:center; font-size:20px; border:1px solid rgba(108,142,247,0.3); }
@@ -37,7 +36,6 @@ h1 { font-size:20px; font-weight:600; letter-spacing:-0.02em; }
 h1 span { color:var(--accent); }
 .subtitle { font-size:12px; color:var(--muted); margin-top:2px; }
 
-/* Buttons */
 button { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:var(--radius); font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--border2); background:var(--surface2); color:var(--text); transition:all 0.15s; }
 button:hover { background:var(--surface); border-color:rgba(255,255,255,0.2); }
 button:active { transform:scale(0.97); }
@@ -45,20 +43,17 @@ button:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
 .btn-primary { background:var(--accent); border-color:transparent; color:#fff; }
 .btn-primary:hover { background:#5a7ef5; }
 
-/* Tabs */
 .tabs { display:flex; gap:4px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0; }
 .tab-btn { padding:8px 20px; border-radius:var(--radius) var(--radius) 0 0; border:1px solid transparent; border-bottom:none; background:none; color:var(--muted); font-size:14px; font-weight:500; cursor:pointer; position:relative; top:1px; transition:all 0.15s; }
 .tab-btn:hover { color:var(--text); background:var(--surface); }
 .tab-btn.active { background:var(--surface); border-color:var(--border); color:var(--accent); }
 
-/* Status bar */
 .status-bar { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin-bottom:1.5rem; flex-wrap:wrap; }
 .dot { width:6px; height:6px; border-radius:50%; background:var(--dim); display:inline-block; }
 .dot.live { background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
 .sep { color:var(--dim); }
 
-/* Summary cards */
 .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-bottom:1.5rem; }
 .scard { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; transition:border-color 0.2s; }
 .scard:hover { border-color:var(--border2); }
@@ -67,7 +62,6 @@ button:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
 .scard-sub { font-size:11px; color:var(--muted); margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .scard-value.green { color:var(--green); }
 
-/* Filter row */
 .filter-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
 .filter-row input, .filter-row select { background:var(--surface); border:1px solid var(--border2); color:var(--text); border-radius:var(--radius); padding:7px 11px; font-size:13px; outline:none; transition:border-color 0.15s; }
 .filter-row input { width:220px; }
@@ -75,7 +69,6 @@ button:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
 .filter-row input::placeholder { color:var(--dim); }
 .filter-row select option { background:#1c2030; }
 
-/* Table */
 .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
 .table-scroll { overflow-x:auto; }
 table { width:100%; border-collapse:collapse; }
@@ -99,20 +92,16 @@ tbody td { padding:9px 14px; vertical-align:middle; }
 .rank-dn { color:var(--red); font-size:12px; }
 .badge-new { font-size:10px; font-weight:600; background:rgba(251,191,36,0.15); color:var(--amber); border:1px solid rgba(251,191,36,0.3); padding:2px 7px; border-radius:4px; }
 
-/* Empty */
 .empty { text-align:center; padding:4rem 2rem; color:var(--muted); font-size:14px; }
 .empty p { margin-top:6px; font-size:13px; }
 
-/* Footer */
 footer { margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border); font-size:11px; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
 
-/* Spinner / Toast */
 @keyframes spin { to{transform:rotate(360deg)} }
 .spin { display:inline-block; animation:spin 0.8s linear infinite; }
 #toast { position:fixed; bottom:1.5rem; right:1.5rem; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius); padding:10px 16px; font-size:13px; color:var(--text); opacity:0; transform:translateY(8px); transition:all 0.25s; pointer-events:none; z-index:100; }
 #toast.show { opacity:1; transform:translateY(0); }
 
-/* Modal */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.2s; }
 .modal-overlay.open { opacity:1; pointer-events:all; }
 .modal { background:var(--surface); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:24px 28px; width:min(700px,95vw); max-height:90vh; overflow-y:auto; }
@@ -122,15 +111,8 @@ footer { margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border); 
 .modal-close { background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; padding:0 4px; line-height:1; }
 .modal-close:hover { color:var(--text); }
 
-/* Chart time-range pill buttons */
-.chart-range-row {
-  display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px;
-}
-.chart-range-btn {
-  padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600;
-  border:1px solid var(--border2); background:var(--surface2); color:var(--muted);
-  cursor:pointer; transition:all 0.15s; letter-spacing:0.03em;
-}
+.chart-range-row { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px; }
+.chart-range-btn { padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; border:1px solid var(--border2); background:var(--surface2); color:var(--muted); cursor:pointer; transition:all 0.15s; letter-spacing:0.03em; }
 .chart-range-btn:hover { color:var(--text); border-color:rgba(255,255,255,0.2); }
 .chart-range-btn.active { background:var(--accent); border-color:transparent; color:#fff; }
 
@@ -141,7 +123,6 @@ canvas#main-chart { width:100% !important; height:100% !important; }
 .mstat-label { font-size:11px; color:var(--muted); margin-bottom:4px; }
 .mstat-value { font-size:18px; font-weight:600; }
 
-/* Tab panels */
 .tab-panel { display:none; }
 .tab-panel.active { display:block; }
 </style>
@@ -170,7 +151,6 @@ canvas#main-chart { width:100% !important; height:100% !important; }
     <span id="next-refresh-label">Auto-refresh in 60:00</span>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('guilds')">Guilds</button>
     <button class="tab-btn" onclick="switchTab('clans')">Clans</button>
@@ -287,8 +267,6 @@ canvas#main-chart { width:100% !important; height:100% !important; }
       <button class="modal-close" onclick="closeModalDirect()">x</button>
     </div>
     <div class="modal-sub" id="modal-sub"></div>
-
-    <!-- Time range pills -->
     <div class="chart-range-row" id="chart-range-row">
       <button class="chart-range-btn" data-days="1"   onclick="setChartRange(1)">1d</button>
       <button class="chart-range-btn" data-days="3"   onclick="setChartRange(3)">3d</button>
@@ -300,7 +278,6 @@ canvas#main-chart { width:100% !important; height:100% !important; }
       <button class="chart-range-btn" data-days="365" onclick="setChartRange(365)">1y</button>
       <button class="chart-range-btn active" data-days="0" onclick="setChartRange(0)">All</button>
     </div>
-
     <div class="chart-wrap"><canvas id="main-chart"></canvas></div>
     <div class="modal-stats" id="modal-stats"></div>
   </div>
@@ -311,9 +288,9 @@ canvas#main-chart { width:100% !important; height:100% !important; }
 <script>
 const STORAGE_KEY = 'ao_tracker_v1';
 const DATA_URL = './data.json';
-const MAX_ORBS = 20; // max visible point orbs on chart
+const OVERRIDES_URL = './nameOverrides.json';
+const MAX_ORBS = 20;
 
-// State per tab
 const state = {
   guilds: { snapshots: [], sort: 'rank', sortAsc: true, rowData: {} },
   clans:  { snapshots: [], sort: 'rank', sortAsc: true, rowData: {} },
@@ -323,11 +300,17 @@ let activeTab = 'guilds';
 let chartInstance = null;
 let countdownInterval = null;
 let secondsToRefresh = 3600;
-
-// Modal state
 let modalTab = null;
 let modalRank = null;
-let modalChartDays = 0; // 0 = all time
+let modalChartDays = 0;
+
+// Name overrides: { guilds: { "RawName": "DisplayName" }, clans: {}, ranked: {} }
+let nameOverrides = { guilds: {}, clans: {}, ranked: {} };
+
+// Apply display name override for a given tab + raw name
+function applyName(tab, rawName) {
+  return (nameOverrides[tab] && nameOverrides[tab][rawName]) || rawName;
+}
 
 // ── Storage ───────────────────────────────────────────────
 function load() {
@@ -353,12 +336,19 @@ async function fetchNow() {
   const btn = document.getElementById('fetch-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spin">...</span> Loading…';
-  setStatus('Loading data.json…');
+  setStatus('Loading data…');
 
   try {
-    const res = await fetch(DATA_URL + '?t=' + Date.now());
+    const t = Date.now();
+    const [res, ovRes] = await Promise.all([
+      fetch(DATA_URL + '?t=' + t),
+      fetch(OVERRIDES_URL + '?t=' + t),
+    ]);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+    if (ovRes.ok) {
+      try { nameOverrides = await ovRes.json(); } catch(e) {}
+    }
 
     if (data.guilds && data.guilds.length) state.guilds.snapshots = data.guilds.slice().sort((a,b)=>a.ts-b.ts);
     if (data.clans  && data.clans.length)  state.clans.snapshots  = data.clans.slice().sort((a,b)=>a.ts-b.ts);
@@ -392,7 +382,7 @@ function switchTab(tab) {
   updateSnapshotLabel();
 }
 
-// ── Diff logic (shared) ───────────────────────────────────
+// ── Diff logic ────────────────────────────────────────────
 function getSnapshotNear(snaps, targetTs) {
   return snaps.reduce((best,s) => Math.abs(s.ts-targetTs) < Math.abs(best.ts-targetTs) ? s : best);
 }
@@ -403,20 +393,16 @@ function getSnapshotPair(tab) {
   const curr = snaps[snaps.length-1];
   const oldest = snaps[0];
   const days = parseInt(document.getElementById(tab+'-range').value);
-
   if (days === 0) return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: false };
-
   const cutoff = curr.ts - days * 24 * 60 * 60 * 1000;
   const tolerance = days * 24 * 60 * 60 * 1000 * 0.2;
   if (oldest.ts > cutoff + tolerance) return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: true };
-
   return { curr, prev: getSnapshotNear(snaps, cutoff), fellBack: false };
 }
 
 function diffSnapshots(curr, prev) {
   if (!curr.guilds || !curr.guilds.length) return [];
   if (!prev || !prev.guilds) return curr.guilds.map(g => ({...g, repDelta:null, rankDelta:null, isNew:false}));
-
   const prevGroups = {};
   for (const g of prev.guilds) {
     const k = g.name+'|'+(g.abbr||'');
@@ -434,7 +420,7 @@ function diffSnapshots(curr, prev) {
   });
 }
 
-// ── Render all tabs ───────────────────────────────────────
+// ── Render ────────────────────────────────────────────────
 function renderAll() {
   ['guilds','clans','ranked'].forEach(t => renderTab(t));
   updateSnapshotLabel();
@@ -451,7 +437,6 @@ function renderTab(tab) {
   const snaps = state[tab].snapshots;
   const pair = getSnapshotPair(tab);
 
-  // Range info
   const ri = document.getElementById(tab+'-range-info');
   if (!snaps.length) { ri.textContent = ''; }
   else if (!pair || !pair.prev) { ri.textContent = 'Only one snapshot available — check back later.'; }
@@ -460,16 +445,16 @@ function renderTab(tab) {
     ri.textContent = `Comparing: ${new Date(pair.prev.ts).toLocaleString()}  →  ${new Date(pair.curr.ts).toLocaleString()}${note}`;
   }
 
-  // Summary cards
   const diffs = pair ? diffSnapshots(pair.curr, pair.prev) : [];
   const withDelta = diffs.filter(g => g.repDelta !== null && g.repDelta > 0);
   if (withDelta.length) {
     const gainer = withDelta.reduce((a,b) => b.repDelta>a.repDelta?b:a);
     document.getElementById(tab+'-sc-gainer').textContent = '+'+fmt(gainer.repDelta);
-    document.getElementById(tab+'-sc-gainer-sub').textContent = gainer.name;
+    // display name in summary card
+    document.getElementById(tab+'-sc-gainer-sub').textContent = applyName(tab, gainer.name);
     const climber = diffs.filter(g=>g.rankDelta!==null&&g.rankDelta>0).reduce((a,b)=>b.rankDelta>a.rankDelta?b:a,{rankDelta:-999,name:''});
     document.getElementById(tab+'-sc-climber').textContent = climber.rankDelta>0?'+'+climber.rankDelta:'—';
-    document.getElementById(tab+'-sc-climber-sub').textContent = climber.rankDelta>0?climber.name:'no rank changes';
+    document.getElementById(tab+'-sc-climber-sub').textContent = climber.rankDelta>0 ? applyName(tab, climber.name) : 'no rank changes';
   } else {
     document.getElementById(tab+'-sc-gainer').textContent = '—';
     document.getElementById(tab+'-sc-gainer-sub').textContent = snaps.length<2?'need 2+ snapshots':'no gains in range';
@@ -477,29 +462,28 @@ function renderTab(tab) {
     document.getElementById(tab+'-sc-climber-sub').textContent = snaps.length<2?'need 2+ snapshots':'no rank changes';
   }
 
-  // Table
   let rows = diffs.length ? diffs : (snaps.length && snaps[snaps.length-1].guilds ? snaps[snaps.length-1].guilds.map(g=>({...g,repDelta:null,rankDelta:null,isNew:false})) : []);
 
+  // Search against display names
   const q = document.getElementById(tab+'-search').value.toLowerCase();
-  if (q) rows = rows.filter(g => g.name.toLowerCase().includes(q) || (g.abbr||'').toLowerCase().includes(q));
+  if (q) rows = rows.filter(g => applyName(tab, g.name).toLowerCase().includes(q) || (g.abbr||'').toLowerCase().includes(q));
 
   const f = document.getElementById(tab+'-filter').value;
   if (f==='rising') rows = rows.filter(g=>g.repDelta!==null&&g.repDelta>0);
   else if (f==='new') rows = rows.filter(g=>g.isNew);
 
   const sk = document.getElementById(tab+'-sort').value;
-  const st = state[tab];
   if (sk==='rep_delta') rows.sort((a,b)=>(b.repDelta||0)-(a.repDelta||0));
   else if (sk==='rank_delta') rows.sort((a,b)=>(b.rankDelta||0)-(a.rankDelta||0));
   else if (sk==='rep') rows.sort((a,b)=>b.rep-a.rep);
-  else if (sk==='name') rows.sort((a,b)=>a.name.localeCompare(b.name));
+  else if (sk==='name') rows.sort((a,b)=>applyName(tab,a.name).localeCompare(applyName(tab,b.name)));
   else rows.sort((a,b)=>a.rank-b.rank);
 
   const label = tab==='ranked'?'player':tab.slice(0,-1);
   document.getElementById(tab+'-row-count').textContent = rows.length ? `${rows.length} ${label}${rows.length!==1?'s':''}` : '';
 
-  st.rowData = {};
-  rows.forEach(g => st.rowData[g.rank] = g);
+  state[tab].rowData = {};
+  rows.forEach(g => state[tab].rowData[g.rank] = g);
 
   const tbody = document.getElementById(tab+'-tbody');
   if (!rows.length) {
@@ -508,6 +492,7 @@ function renderTab(tab) {
   }
 
   tbody.innerHTML = rows.map(g => {
+    const displayName = applyName(tab, g.name);
     const rankClass = g.rank<=3?'rank-num top3':'rank-num';
     const repDeltaHtml = g.repDelta!==null
       ? `<span class="${g.repDelta>0?'pos':g.repDelta<0?'neg':'neutral'}">${g.repDelta>0?'+':''}${fmt(g.repDelta)}</span>`
@@ -521,7 +506,7 @@ function renderTab(tab) {
 
     return `<tr>
       <td class="${rankClass}">#${g.rank}</td>
-      <td class="name-cell" title="${esc(g.name)}" style="cursor:pointer" onclick="openModal('${tab}',${g.rank})">${esc(g.name)}</td>
+      <td class="name-cell" title="${esc(displayName)}" style="cursor:pointer" onclick="openModal('${tab}',${g.rank})">${esc(displayName)}</td>
       <td class="rep-cell">${fmt(g.rep)}</td>
       <td class="delta-cell">${repDeltaHtml}</td>
       <td class="rank-delta-cell">${rankDeltaHtml}</td>
@@ -538,12 +523,13 @@ function setSort(tab, key) {
   renderTab(tab);
 }
 
-// ── Modal ─────────────────────────────────────────────────
+// ── Modal / Chart ─────────────────────────────────────────
 function getHistory(tab, g) {
   let lastRank = g.rank;
   const result = [];
   for (const s of state[tab].snapshots) {
     if (!s.guilds) continue;
+    // match on raw name (as stored in data.json)
     const key = g.name+'|'+(g.abbr||'');
     const candidates = s.guilds.filter(x => x.name+'|'+(x.abbr||'')===key);
     if (!candidates.length) continue;
@@ -554,16 +540,13 @@ function getHistory(tab, g) {
   return result;
 }
 
-// Filter history to a given day window (0 = all)
 function filterHistory(history, days) {
   if (!days || !history.length) return history;
   const cutoff = history[history.length-1].ts - days * 24 * 60 * 60 * 1000;
   const filtered = history.filter(h => h.ts >= cutoff);
-  // always include at least 2 points if possible
   return filtered.length >= 2 ? filtered : history.slice(-2);
 }
 
-// Thin history to at most MAX_ORBS evenly-spaced points, always keeping first & last
 function thinHistory(history) {
   const n = history.length;
   if (n <= MAX_ORBS) return history;
@@ -577,32 +560,26 @@ function thinHistory(history) {
 
 function setChartRange(days) {
   modalChartDays = days;
-  // update active pill
   document.querySelectorAll('.chart-range-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.days) === days);
   });
-  // re-render chart only
-  if (modalTab !== null && modalRank !== null) {
-    renderModalChart(modalTab, modalRank);
-  }
+  if (modalTab !== null && modalRank !== null) renderModalChart(modalTab, modalRank);
 }
 
 function renderModalChart(tab, rank) {
   const g = state[tab].rowData[rank];
   if (!g) return;
-
   const fullHistory = getHistory(tab, g);
   const filtered = filterHistory(fullHistory, modalChartDays);
   const thinned  = thinHistory(filtered);
   const scoreLabel = tab === 'ranked' ? 'score' : 'rep';
 
-  // Update sub-text with current window
   if (filtered.length >= 2) {
     document.getElementById('modal-sub').textContent =
       `${new Date(filtered[0].ts).toLocaleDateString()} — ${new Date(filtered[filtered.length-1].ts).toLocaleDateString()}  ·  ${filtered.length} snapshots`;
   }
 
-  const labels = thinned.map(h => new Date(h.ts).toLocaleDateString(undefined, {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}));
+  const labels = thinned.map(h => new Date(h.ts).toLocaleDateString(undefined, {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
   const data   = thinned.map(h => h.rep);
 
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
@@ -616,7 +593,7 @@ function renderModalChart(tab, rank) {
         borderColor: '#6c8ef7',
         backgroundColor: 'rgba(108,142,247,0.08)',
         borderWidth: 2,
-        pointRadius: 4,        // always show orbs — thinning keeps count ≤ MAX_ORBS
+        pointRadius: 4,
         pointHoverRadius: 6,
         pointBackgroundColor: '#6c8ef7',
         fill: true,
@@ -624,15 +601,14 @@ function renderModalChart(tab, rank) {
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: c => ' ' + fmt(c.parsed.y) + ' ' + scoreLabel } }
+        tooltip: { callbacks: { label: c => ' '+fmt(c.parsed.y)+' '+scoreLabel } }
       },
       scales: {
-        x: { ticks: { color:'#7a8099', maxTicksLimit:8, maxRotation:0 }, grid: { color:'rgba(255,255,255,0.04)' } },
-        y: { ticks: { color:'#7a8099', callback: v => fmt(v) }, grid: { color:'rgba(255,255,255,0.04)' } }
+        x: { ticks:{color:'#7a8099',maxTicksLimit:8,maxRotation:0}, grid:{color:'rgba(255,255,255,0.04)'} },
+        y: { ticks:{color:'#7a8099',callback:v=>fmt(v)}, grid:{color:'rgba(255,255,255,0.04)'} }
       }
     }
   });
@@ -643,8 +619,9 @@ function openModal(tab, rank) {
   if (!g) return;
   const history = getHistory(tab, g);
   const overlay = document.getElementById('modal-overlay');
+  const displayName = applyName(tab, g.name);
 
-  document.getElementById('modal-title').textContent = g.name;
+  document.getElementById('modal-title').textContent = displayName;
 
   if (history.length < 2) {
     document.getElementById('modal-sub').textContent = 'Not enough data yet — check back after more snapshots.';
@@ -656,12 +633,8 @@ function openModal(tab, rank) {
   }
 
   document.getElementById('chart-range-row').style.display = 'flex';
-
-  // Save modal state
   modalTab = tab;
   modalRank = rank;
-
-  // Reset pill to "All" when opening fresh
   modalChartDays = 0;
   document.querySelectorAll('.chart-range-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.days) === 0);
