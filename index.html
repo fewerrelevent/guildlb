@@ -27,7 +27,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Inter','Segoe UI',system-ui,sans-serif; font-size: 14px; min-height: 100vh; }
 body::before { content:''; position:fixed; inset:0; background-image: linear-gradient(rgba(108,142,247,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(108,142,247,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
-.page { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+.page { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:2rem 1.5rem; }
 
 header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); }
 .header-left { display:flex; align-items:center; gap:14px; }
@@ -43,8 +43,8 @@ button:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
 .btn-primary { background:var(--accent); border-color:transparent; color:#fff; }
 .btn-primary:hover { background:#5a7ef5; }
 
-.tabs { display:flex; gap:4px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0; }
-.tab-btn { padding:8px 20px; border-radius:var(--radius) var(--radius) 0 0; border:1px solid transparent; border-bottom:none; background:none; color:var(--muted); font-size:14px; font-weight:500; cursor:pointer; position:relative; top:1px; transition:all 0.15s; }
+.tabs { display:flex; gap:4px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0; flex-wrap:wrap; }
+.tab-btn { padding:8px 16px; border-radius:var(--radius) var(--radius) 0 0; border:1px solid transparent; border-bottom:none; background:none; color:var(--muted); font-size:13px; font-weight:500; cursor:pointer; position:relative; top:1px; transition:all 0.15s; white-space:nowrap; }
 .tab-btn:hover { color:var(--text); background:var(--surface); }
 .tab-btn.active { background:var(--surface); border-color:var(--border); color:var(--accent); }
 
@@ -85,6 +85,7 @@ tbody td { padding:9px 14px; vertical-align:middle; }
 .rep-cell { font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
 .delta-cell { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
 .rank-delta-cell { text-align:right; white-space:nowrap; }
+.savefile-cell { text-align:center; color:var(--muted); font-size:12px; white-space:nowrap; }
 .pos { color:var(--green); }
 .neg { color:var(--red); }
 .neutral { color:var(--dim); }
@@ -152,28 +153,26 @@ canvas#main-chart { width:100% !important; height:100% !important; }
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('guilds')">Guilds</button>
-    <button class="tab-btn" onclick="switchTab('clans')">Clans</button>
-    <button class="tab-btn" onclick="switchTab('ranked')">Ranked</button>
+    <button class="tab-btn active"  onclick="switchTab('guilds')">Guilds</button>
+    <button class="tab-btn"         onclick="switchTab('clans')">Clans</button>
+    <button class="tab-btn"         onclick="switchTab('ranked')">Ranked</button>
+    <button class="tab-btn"         onclick="switchTab('fame')">Fame</button>
+    <button class="tab-btn"         onclick="switchTab('bounty')">Bounty</button>
+    <button class="tab-btn"         onclick="switchTab('grandNavy')">Grand Navy</button>
+    <button class="tab-btn"         onclick="switchTab('assassinSyndicate')">Assassin Syndicate</button>
   </div>
 
-  <!-- Guild tab -->
+  <!-- ══ Guild tab ══════════════════════════════════════════ -->
   <div class="tab-panel active" id="panel-guilds">
     <div class="summary-grid">
       <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="guilds-sc-gainer">—</div><div class="scard-sub" id="guilds-sc-gainer-sub">need 2+ snapshots</div></div>
       <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="guilds-sc-climber">—</div><div class="scard-sub" id="guilds-sc-climber-sub">need 2+ snapshots</div></div>
     </div>
     <div class="filter-row">
-      <select id="guilds-range" onchange="renderTab('guilds')">
-        <option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option>
-      </select>
+      <select id="guilds-range" onchange="renderTab('guilds')"><option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option></select>
       <input type="text" id="guilds-search" placeholder="Search guild name…" oninput="renderTab('guilds')">
-      <select id="guilds-sort" onchange="renderTab('guilds')">
-        <option value="rank">Sort: rank</option><option value="rep_delta">Sort: rep gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total rep</option>
-      </select>
-      <select id="guilds-filter" onchange="renderTab('guilds')">
-        <option value="all">All guilds</option><option value="rising">Gained rep only</option><option value="new">New entries</option>
-      </select>
+      <select id="guilds-sort" onchange="renderTab('guilds')"><option value="rank">Sort: rank</option><option value="rep_delta">Sort: rep gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total rep</option></select>
+      <select id="guilds-filter" onchange="renderTab('guilds')"><option value="all">All guilds</option><option value="rising">Gained rep only</option><option value="new">New entries</option></select>
       <span id="guilds-row-count" style="font-size:12px;color:var(--muted);"></span>
     </div>
     <div id="guilds-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
@@ -189,23 +188,17 @@ canvas#main-chart { width:100% !important; height:100% !important; }
     </table></div></div>
   </div>
 
-  <!-- Clan tab -->
+  <!-- ══ Clan tab ═══════════════════════════════════════════ -->
   <div class="tab-panel" id="panel-clans">
     <div class="summary-grid">
       <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="clans-sc-gainer">—</div><div class="scard-sub" id="clans-sc-gainer-sub">need 2+ snapshots</div></div>
       <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="clans-sc-climber">—</div><div class="scard-sub" id="clans-sc-climber-sub">need 2+ snapshots</div></div>
     </div>
     <div class="filter-row">
-      <select id="clans-range" onchange="renderTab('clans')">
-        <option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option>
-      </select>
+      <select id="clans-range" onchange="renderTab('clans')"><option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option></select>
       <input type="text" id="clans-search" placeholder="Search clan name…" oninput="renderTab('clans')">
-      <select id="clans-sort" onchange="renderTab('clans')">
-        <option value="rank">Sort: rank</option><option value="rep_delta">Sort: rep gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total rep</option>
-      </select>
-      <select id="clans-filter" onchange="renderTab('clans')">
-        <option value="all">All clans</option><option value="rising">Gained rep only</option><option value="new">New entries</option>
-      </select>
+      <select id="clans-sort" onchange="renderTab('clans')"><option value="rank">Sort: rank</option><option value="rep_delta">Sort: rep gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total rep</option></select>
+      <select id="clans-filter" onchange="renderTab('clans')"><option value="all">All clans</option><option value="rising">Gained rep only</option><option value="new">New entries</option></select>
       <span id="clans-row-count" style="font-size:12px;color:var(--muted);"></span>
     </div>
     <div id="clans-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
@@ -221,23 +214,17 @@ canvas#main-chart { width:100% !important; height:100% !important; }
     </table></div></div>
   </div>
 
-  <!-- Ranked tab -->
+  <!-- ══ Ranked tab ═════════════════════════════════════════ -->
   <div class="tab-panel" id="panel-ranked">
     <div class="summary-grid">
       <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="ranked-sc-gainer">—</div><div class="scard-sub" id="ranked-sc-gainer-sub">need 2+ snapshots</div></div>
       <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="ranked-sc-climber">—</div><div class="scard-sub" id="ranked-sc-climber-sub">need 2+ snapshots</div></div>
     </div>
     <div class="filter-row">
-      <select id="ranked-range" onchange="renderTab('ranked')">
-        <option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option>
-      </select>
+      <select id="ranked-range" onchange="renderTab('ranked')"><option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option></select>
       <input type="text" id="ranked-search" placeholder="Search player name…" oninput="renderTab('ranked')">
-      <select id="ranked-sort" onchange="renderTab('ranked')">
-        <option value="rank">Sort: rank</option><option value="rep_delta">Sort: score gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total score</option>
-      </select>
-      <select id="ranked-filter" onchange="renderTab('ranked')">
-        <option value="all">All players</option><option value="rising">Gained score only</option><option value="new">New entries</option>
-      </select>
+      <select id="ranked-sort" onchange="renderTab('ranked')"><option value="rank">Sort: rank</option><option value="rep_delta">Sort: score gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total score</option></select>
+      <select id="ranked-filter" onchange="renderTab('ranked')"><option value="all">All players</option><option value="rising">Gained score only</option><option value="new">New entries</option></select>
       <span id="ranked-row-count" style="font-size:12px;color:var(--muted);"></span>
     </div>
     <div id="ranked-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
@@ -250,6 +237,114 @@ canvas#main-chart { width:100% !important; height:100% !important; }
         <th onclick="setSort('ranked','rank_delta')" style="text-align:right">Rank Δ</th>
       </tr></thead>
       <tbody id="ranked-tbody"><tr><td colspan="5"><div class="empty"><strong>No data loaded yet</strong><p>Click "Fetch now" to load.</p></div></td></tr></tbody>
+    </table></div></div>
+  </div>
+
+  <!-- ══ Fame tab ═══════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-fame">
+    <div class="summary-grid">
+      <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="fame-sc-gainer">—</div><div class="scard-sub" id="fame-sc-gainer-sub">need 2+ snapshots</div></div>
+      <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="fame-sc-climber">—</div><div class="scard-sub" id="fame-sc-climber-sub">need 2+ snapshots</div></div>
+    </div>
+    <div class="filter-row">
+      <select id="fame-range" onchange="renderTab('fame')"><option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option></select>
+      <input type="text" id="fame-search" placeholder="Search player name…" oninput="renderTab('fame')">
+      <select id="fame-sort" onchange="renderTab('fame')"><option value="rank">Sort: rank</option><option value="rep_delta">Sort: renown gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total renown</option></select>
+      <select id="fame-filter" onchange="renderTab('fame')"><option value="all">All players</option><option value="rising">Gained renown only</option><option value="new">New entries</option></select>
+      <span id="fame-row-count" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div id="fame-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr>
+        <th onclick="setSort('fame','rank')"># Rank</th>
+        <th onclick="setSort('fame','name')">Player</th>
+        <th style="text-align:center">Save File</th>
+        <th onclick="setSort('fame','rep')" style="text-align:right">Renown</th>
+        <th onclick="setSort('fame','rep_delta')" style="text-align:right">Renown change</th>
+        <th onclick="setSort('fame','rank_delta')" style="text-align:right">Rank Δ</th>
+      </tr></thead>
+      <tbody id="fame-tbody"><tr><td colspan="6"><div class="empty"><strong>No data loaded yet</strong><p>Click "Fetch now" to load.</p></div></td></tr></tbody>
+    </table></div></div>
+  </div>
+
+  <!-- ══ Bounty tab ═════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-bounty">
+    <div class="summary-grid">
+      <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="bounty-sc-gainer">—</div><div class="scard-sub" id="bounty-sc-gainer-sub">need 2+ snapshots</div></div>
+      <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="bounty-sc-climber">—</div><div class="scard-sub" id="bounty-sc-climber-sub">need 2+ snapshots</div></div>
+    </div>
+    <div class="filter-row">
+      <select id="bounty-range" onchange="renderTab('bounty')"><option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option></select>
+      <input type="text" id="bounty-search" placeholder="Search player name…" oninput="renderTab('bounty')">
+      <select id="bounty-sort" onchange="renderTab('bounty')"><option value="rank">Sort: rank</option><option value="rep_delta">Sort: bounty gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total bounty</option></select>
+      <select id="bounty-filter" onchange="renderTab('bounty')"><option value="all">All players</option><option value="rising">Gained bounty only</option><option value="new">New entries</option></select>
+      <span id="bounty-row-count" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div id="bounty-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr>
+        <th onclick="setSort('bounty','rank')"># Rank</th>
+        <th onclick="setSort('bounty','name')">Player</th>
+        <th style="text-align:center">Save File</th>
+        <th onclick="setSort('bounty','rep')" style="text-align:right">Bounty</th>
+        <th onclick="setSort('bounty','rep_delta')" style="text-align:right">Bounty change</th>
+        <th onclick="setSort('bounty','rank_delta')" style="text-align:right">Rank Δ</th>
+      </tr></thead>
+      <tbody id="bounty-tbody"><tr><td colspan="6"><div class="empty"><strong>No data loaded yet</strong><p>Click "Fetch now" to load.</p></div></td></tr></tbody>
+    </table></div></div>
+  </div>
+
+  <!-- ══ Grand Navy tab ════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-grandNavy">
+    <div class="summary-grid">
+      <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="grandNavy-sc-gainer">—</div><div class="scard-sub" id="grandNavy-sc-gainer-sub">need 2+ snapshots</div></div>
+      <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="grandNavy-sc-climber">—</div><div class="scard-sub" id="grandNavy-sc-climber-sub">need 2+ snapshots</div></div>
+    </div>
+    <div class="filter-row">
+      <select id="grandNavy-range" onchange="renderTab('grandNavy')"><option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option></select>
+      <input type="text" id="grandNavy-search" placeholder="Search player name…" oninput="renderTab('grandNavy')">
+      <select id="grandNavy-sort" onchange="renderTab('grandNavy')"><option value="rank">Sort: rank</option><option value="rep_delta">Sort: rep gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total rep</option></select>
+      <select id="grandNavy-filter" onchange="renderTab('grandNavy')"><option value="all">All players</option><option value="rising">Gained rep only</option><option value="new">New entries</option></select>
+      <span id="grandNavy-row-count" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div id="grandNavy-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr>
+        <th onclick="setSort('grandNavy','rank')"># Rank</th>
+        <th onclick="setSort('grandNavy','name')">Player</th>
+        <th style="text-align:center">Save File</th>
+        <th onclick="setSort('grandNavy','rep')" style="text-align:right">Navy Rep</th>
+        <th onclick="setSort('grandNavy','rep_delta')" style="text-align:right">Rep change</th>
+        <th onclick="setSort('grandNavy','rank_delta')" style="text-align:right">Rank Δ</th>
+      </tr></thead>
+      <tbody id="grandNavy-tbody"><tr><td colspan="6"><div class="empty"><strong>No data loaded yet</strong><p>Click "Fetch now" to load.</p></div></td></tr></tbody>
+    </table></div></div>
+  </div>
+
+  <!-- ══ Assassin Syndicate tab ════════════════════════════ -->
+  <div class="tab-panel" id="panel-assassinSyndicate">
+    <div class="summary-grid">
+      <div class="scard"><div class="scard-label">Biggest gainer</div><div class="scard-value green" id="assassinSyndicate-sc-gainer">—</div><div class="scard-sub" id="assassinSyndicate-sc-gainer-sub">need 2+ snapshots</div></div>
+      <div class="scard"><div class="scard-label">Most rank jumps</div><div class="scard-value" id="assassinSyndicate-sc-climber">—</div><div class="scard-sub" id="assassinSyndicate-sc-climber-sub">need 2+ snapshots</div></div>
+    </div>
+    <div class="filter-row">
+      <select id="assassinSyndicate-range" onchange="renderTab('assassinSyndicate')"><option value="7">Past 7 days</option><option value="30">Past 30 days</option><option value="90">Past 3 months</option><option value="180">Past 6 months</option><option value="365">Past 1 year</option><option value="0">All time</option></select>
+      <input type="text" id="assassinSyndicate-search" placeholder="Search player name…" oninput="renderTab('assassinSyndicate')">
+      <select id="assassinSyndicate-sort" onchange="renderTab('assassinSyndicate')"><option value="rank">Sort: rank</option><option value="rep_delta">Sort: rep gained</option><option value="rank_delta">Sort: rank climb</option><option value="rep">Sort: total rep</option></select>
+      <select id="assassinSyndicate-filter" onchange="renderTab('assassinSyndicate')"><option value="all">All players</option><option value="rising">Gained rep only</option><option value="new">New entries</option></select>
+      <span id="assassinSyndicate-row-count" style="font-size:12px;color:var(--muted);"></span>
+    </div>
+    <div id="assassinSyndicate-range-info" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr>
+        <th onclick="setSort('assassinSyndicate','rank')"># Rank</th>
+        <th onclick="setSort('assassinSyndicate','name')">Player</th>
+        <th style="text-align:center">Save File</th>
+        <th onclick="setSort('assassinSyndicate','rep')" style="text-align:right">Syndicate Rep</th>
+        <th onclick="setSort('assassinSyndicate','rep_delta')" style="text-align:right">Rep change</th>
+        <th onclick="setSort('assassinSyndicate','rank_delta')" style="text-align:right">Rank Δ</th>
+      </tr></thead>
+      <tbody id="assassinSyndicate-tbody"><tr><td colspan="6"><div class="empty"><strong>No data loaded yet</strong><p>Click "Fetch now" to load.</p></div></td></tr></tbody>
     </table></div></div>
   </div>
 
@@ -286,16 +381,26 @@ canvas#main-chart { width:100% !important; height:100% !important; }
 <div id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'ao_tracker_v1';
+const STORAGE_KEY = 'ao_tracker_v2';
 const DATA_URL = './data.json';
 const OVERRIDES_URL = './nameOverrides.json';
 const MAX_ORBS = 20;
 
-const state = {
-  guilds: { snapshots: [], sort: 'rank', sortAsc: true, rowData: {} },
-  clans:  { snapshots: [], sort: 'rank', sortAsc: true, rowData: {} },
-  ranked: { snapshots: [], sort: 'rank', sortAsc: true, rowData: {} },
+// Tabs that have a "Save File" column
+const SAVEFILE_TABS = new Set(['fame','bounty','grandNavy','assassinSyndicate']);
+
+// Human-readable score label per tab
+const SCORE_LABEL = {
+  guilds: 'rep', clans: 'rep', ranked: 'score',
+  fame: 'renown', bounty: 'bounty', grandNavy: 'navy rep', assassinSyndicate: 'syndicate rep',
 };
+
+// Tab display order for button toggle (matches HTML order)
+const ALL_TABS = ['guilds','clans','ranked','fame','bounty','grandNavy','assassinSyndicate'];
+
+const state = {};
+ALL_TABS.forEach(t => { state[t] = { snapshots: [], sort: 'rank', sortAsc: true, rowData: {} }; });
+
 let activeTab = 'guilds';
 let chartInstance = null;
 let countdownInterval = null;
@@ -304,10 +409,9 @@ let modalTab = null;
 let modalRank = null;
 let modalChartDays = 0;
 
-// Name overrides: { guilds: { "RawName": "DisplayName" }, clans: {}, ranked: {} }
-let nameOverrides = { guilds: {}, clans: {}, ranked: {} };
+let nameOverrides = {};
+ALL_TABS.forEach(t => { nameOverrides[t] = {}; });
 
-// Apply display name override for a given tab + raw name
 function applyName(tab, rawName) {
   return (nameOverrides[tab] && nameOverrides[tab][rawName]) || rawName;
 }
@@ -316,18 +420,14 @@ function applyName(tab, rawName) {
 function load() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    if (saved.guilds) state.guilds.snapshots = saved.guilds;
-    if (saved.clans)  state.clans.snapshots  = saved.clans;
-    if (saved.ranked) state.ranked.snapshots = saved.ranked;
+    ALL_TABS.forEach(t => { if (saved[t]) state[t].snapshots = saved[t]; });
   } catch(e) {}
 }
 function save() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      guilds: state.guilds.snapshots,
-      clans:  state.clans.snapshots,
-      ranked: state.ranked.snapshots,
-    }));
+    const obj = {};
+    ALL_TABS.forEach(t => { obj[t] = state[t].snapshots; });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
   } catch(e) { toast('Storage full'); }
 }
 
@@ -350,9 +450,9 @@ async function fetchNow() {
       try { nameOverrides = await ovRes.json(); } catch(e) {}
     }
 
-    if (data.guilds && data.guilds.length) state.guilds.snapshots = data.guilds.slice().sort((a,b)=>a.ts-b.ts);
-    if (data.clans  && data.clans.length)  state.clans.snapshots  = data.clans.slice().sort((a,b)=>a.ts-b.ts);
-    if (data.ranked && data.ranked.length) state.ranked.snapshots = data.ranked.slice().sort((a,b)=>a.ts-b.ts);
+    ALL_TABS.forEach(t => {
+      if (data[t] && data[t].length) state[t].snapshots = data[t].slice().sort((a,b) => a.ts - b.ts);
+    });
 
     save();
     renderAll();
@@ -374,8 +474,8 @@ async function fetchNow() {
 // ── Tab switching ─────────────────────────────────────────
 function switchTab(tab) {
   activeTab = tab;
-  document.querySelectorAll('.tab-btn').forEach((b,i) => {
-    b.classList.toggle('active', ['guilds','clans','ranked'][i] === tab);
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ALL_TABS[i] === tab);
   });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + tab).classList.add('active');
@@ -384,15 +484,15 @@ function switchTab(tab) {
 
 // ── Diff logic ────────────────────────────────────────────
 function getSnapshotNear(snaps, targetTs) {
-  return snaps.reduce((best,s) => Math.abs(s.ts-targetTs) < Math.abs(best.ts-targetTs) ? s : best);
+  return snaps.reduce((best, s) => Math.abs(s.ts - targetTs) < Math.abs(best.ts - targetTs) ? s : best);
 }
 
 function getSnapshotPair(tab) {
   const snaps = state[tab].snapshots;
   if (!snaps.length) return null;
-  const curr = snaps[snaps.length-1];
+  const curr = snaps[snaps.length - 1];
   const oldest = snaps[0];
-  const days = parseInt(document.getElementById(tab+'-range').value);
+  const days = parseInt(document.getElementById(tab + '-range').value);
   if (days === 0) return { curr, prev: oldest.ts !== curr.ts ? oldest : null, fellBack: false };
   const cutoff = curr.ts - days * 24 * 60 * 60 * 1000;
   const tolerance = days * 24 * 60 * 60 * 1000 * 0.2;
@@ -402,27 +502,27 @@ function getSnapshotPair(tab) {
 
 function diffSnapshots(curr, prev) {
   if (!curr.guilds || !curr.guilds.length) return [];
-  if (!prev || !prev.guilds) return curr.guilds.map(g => ({...g, repDelta:null, rankDelta:null, isNew:false}));
-  const prevGroups = {};
+  if (!prev || !prev.guilds) return curr.guilds.map(g => ({...g, repDelta: null, rankDelta: null, isNew: false}));
+  const prevMap = {};
   for (const g of prev.guilds) {
-    const k = g.name+'|'+(g.abbr||'');
-    if (!prevGroups[k]) prevGroups[k] = [];
-    prevGroups[k].push(g);
+    const k = g.name + '|' + (g.abbr || '');
+    if (!prevMap[k]) prevMap[k] = [];
+    prevMap[k].push(g);
   }
   const used = new Set();
   return curr.guilds.map(g => {
-    const k = g.name+'|'+(g.abbr||'');
-    const candidates = (prevGroups[k]||[]).filter(c=>!used.has(c.rank));
-    if (!candidates.length) return {...g, repDelta:null, rankDelta:null, isNew:true};
-    const best = candidates.reduce((a,b) => Math.abs(a.rank-g.rank)<=Math.abs(b.rank-g.rank)?a:b);
+    const k = g.name + '|' + (g.abbr || '');
+    const candidates = (prevMap[k] || []).filter(c => !used.has(c.rank));
+    if (!candidates.length) return {...g, repDelta: null, rankDelta: null, isNew: true};
+    const best = candidates.reduce((a, b) => Math.abs(a.rank - g.rank) <= Math.abs(b.rank - g.rank) ? a : b);
     used.add(best.rank);
-    return {...g, repDelta:g.rep-best.rep, rankDelta:best.rank-g.rank, isNew:false};
+    return {...g, repDelta: g.rep - best.rep, rankDelta: best.rank - g.rank, isNew: false};
   });
 }
 
 // ── Render ────────────────────────────────────────────────
 function renderAll() {
-  ['guilds','clans','ranked'].forEach(t => renderTab(t));
+  ALL_TABS.forEach(t => renderTab(t));
   updateSnapshotLabel();
   const snaps = state[activeTab].snapshots;
   if (snaps.length) document.getElementById('footer-time').textContent = `Snapshot: ${new Date(snaps[snaps.length-1].ts).toLocaleString()}`;
@@ -430,14 +530,17 @@ function renderAll() {
 
 function updateSnapshotLabel() {
   const n = state[activeTab].snapshots.length;
-  document.getElementById('snapshot-label').textContent = n ? `${n} snapshot${n!==1?'s':''} stored` : '';
+  document.getElementById('snapshot-label').textContent = n ? `${n} snapshot${n !== 1 ? 's' : ''} stored` : '';
 }
 
 function renderTab(tab) {
   const snaps = state[tab].snapshots;
   const pair = getSnapshotPair(tab);
+  const hasSaveFile = SAVEFILE_TABS.has(tab);
+  const colSpan = hasSaveFile ? 6 : 5;
+  const scoreLabel = SCORE_LABEL[tab] || 'rep';
 
-  const ri = document.getElementById(tab+'-range-info');
+  const ri = document.getElementById(tab + '-range-info');
   if (!snaps.length) { ri.textContent = ''; }
   else if (!pair || !pair.prev) { ri.textContent = 'Only one snapshot available — check back later.'; }
   else {
@@ -448,65 +551,73 @@ function renderTab(tab) {
   const diffs = pair ? diffSnapshots(pair.curr, pair.prev) : [];
   const withDelta = diffs.filter(g => g.repDelta !== null && g.repDelta > 0);
   if (withDelta.length) {
-    const gainer = withDelta.reduce((a,b) => b.repDelta>a.repDelta?b:a);
-    document.getElementById(tab+'-sc-gainer').textContent = '+'+fmt(gainer.repDelta);
-    // display name in summary card
-    document.getElementById(tab+'-sc-gainer-sub').textContent = applyName(tab, gainer.name);
-    const climber = diffs.filter(g=>g.rankDelta!==null&&g.rankDelta>0).reduce((a,b)=>b.rankDelta>a.rankDelta?b:a,{rankDelta:-999,name:''});
-    document.getElementById(tab+'-sc-climber').textContent = climber.rankDelta>0?'+'+climber.rankDelta:'—';
-    document.getElementById(tab+'-sc-climber-sub').textContent = climber.rankDelta>0 ? applyName(tab, climber.name) : 'no rank changes';
+    const gainer = withDelta.reduce((a, b) => b.repDelta > a.repDelta ? b : a);
+    document.getElementById(tab + '-sc-gainer').textContent = '+' + fmt(gainer.repDelta);
+    document.getElementById(tab + '-sc-gainer-sub').textContent = applyName(tab, gainer.name);
+    const climbers = diffs.filter(g => g.rankDelta !== null && g.rankDelta > 0);
+    const climber = climbers.length ? climbers.reduce((a, b) => b.rankDelta > a.rankDelta ? b : a) : null;
+    document.getElementById(tab + '-sc-climber').textContent = climber ? '+' + climber.rankDelta : '—';
+    document.getElementById(tab + '-sc-climber-sub').textContent = climber ? applyName(tab, climber.name) : 'no rank changes';
   } else {
-    document.getElementById(tab+'-sc-gainer').textContent = '—';
-    document.getElementById(tab+'-sc-gainer-sub').textContent = snaps.length<2?'need 2+ snapshots':'no gains in range';
-    document.getElementById(tab+'-sc-climber').textContent = '—';
-    document.getElementById(tab+'-sc-climber-sub').textContent = snaps.length<2?'need 2+ snapshots':'no rank changes';
+    document.getElementById(tab + '-sc-gainer').textContent = '—';
+    document.getElementById(tab + '-sc-gainer-sub').textContent = snaps.length < 2 ? 'need 2+ snapshots' : 'no gains in range';
+    document.getElementById(tab + '-sc-climber').textContent = '—';
+    document.getElementById(tab + '-sc-climber-sub').textContent = snaps.length < 2 ? 'need 2+ snapshots' : 'no rank changes';
   }
 
-  let rows = diffs.length ? diffs : (snaps.length && snaps[snaps.length-1].guilds ? snaps[snaps.length-1].guilds.map(g=>({...g,repDelta:null,rankDelta:null,isNew:false})) : []);
+  let rows = diffs.length
+    ? diffs
+    : (snaps.length && snaps[snaps.length-1].guilds
+        ? snaps[snaps.length-1].guilds.map(g => ({...g, repDelta: null, rankDelta: null, isNew: false}))
+        : []);
 
-  // Search against display names
-  const q = document.getElementById(tab+'-search').value.toLowerCase();
-  if (q) rows = rows.filter(g => applyName(tab, g.name).toLowerCase().includes(q) || (g.abbr||'').toLowerCase().includes(q));
+  const q = document.getElementById(tab + '-search').value.toLowerCase();
+  if (q) rows = rows.filter(g => applyName(tab, g.name).toLowerCase().includes(q) || (g.abbr || '').toLowerCase().includes(q));
 
-  const f = document.getElementById(tab+'-filter').value;
-  if (f==='rising') rows = rows.filter(g=>g.repDelta!==null&&g.repDelta>0);
-  else if (f==='new') rows = rows.filter(g=>g.isNew);
+  const f = document.getElementById(tab + '-filter').value;
+  if (f === 'rising') rows = rows.filter(g => g.repDelta !== null && g.repDelta > 0);
+  else if (f === 'new') rows = rows.filter(g => g.isNew);
 
-  const sk = document.getElementById(tab+'-sort').value;
-  if (sk==='rep_delta') rows.sort((a,b)=>(b.repDelta||0)-(a.repDelta||0));
-  else if (sk==='rank_delta') rows.sort((a,b)=>(b.rankDelta||0)-(a.rankDelta||0));
-  else if (sk==='rep') rows.sort((a,b)=>b.rep-a.rep);
-  else if (sk==='name') rows.sort((a,b)=>applyName(tab,a.name).localeCompare(applyName(tab,b.name)));
-  else rows.sort((a,b)=>a.rank-b.rank);
+  const sk = document.getElementById(tab + '-sort').value;
+  if      (sk === 'rep_delta')  rows.sort((a, b) => (b.repDelta || 0) - (a.repDelta || 0));
+  else if (sk === 'rank_delta') rows.sort((a, b) => (b.rankDelta || 0) - (a.rankDelta || 0));
+  else if (sk === 'rep')        rows.sort((a, b) => b.rep - a.rep);
+  else if (sk === 'name')       rows.sort((a, b) => applyName(tab, a.name).localeCompare(applyName(tab, b.name)));
+  else                          rows.sort((a, b) => a.rank - b.rank);
 
-  const label = tab==='ranked'?'player':tab.slice(0,-1);
-  document.getElementById(tab+'-row-count').textContent = rows.length ? `${rows.length} ${label}${rows.length!==1?'s':''}` : '';
+  const entityLabel = tab === 'guilds' ? 'guild' : tab === 'clans' ? 'clan' : 'player';
+  document.getElementById(tab + '-row-count').textContent = rows.length ? `${rows.length} ${entityLabel}${rows.length !== 1 ? 's' : ''}` : '';
 
   state[tab].rowData = {};
-  rows.forEach(g => state[tab].rowData[g.rank] = g);
+  rows.forEach(g => { state[tab].rowData[g.rank] = g; });
 
-  const tbody = document.getElementById(tab+'-tbody');
+  const tbody = document.getElementById(tab + '-tbody');
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><strong>No data</strong><p>${snaps.length?'Try a different filter.':'Click Fetch now to load.'}</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${colSpan}"><div class="empty"><strong>No data</strong><p>${snaps.length ? 'Try a different filter.' : 'Click Fetch now to load.'}</p></div></td></tr>`;
     return;
   }
 
   tbody.innerHTML = rows.map(g => {
     const displayName = applyName(tab, g.name);
-    const rankClass = g.rank<=3?'rank-num top3':'rank-num';
-    const repDeltaHtml = g.repDelta!==null
-      ? `<span class="${g.repDelta>0?'pos':g.repDelta<0?'neg':'neutral'}">${g.repDelta>0?'+':''}${fmt(g.repDelta)}</span>`
+    const rankClass = g.rank <= 3 ? 'rank-num top3' : 'rank-num';
+    const repDeltaHtml = g.repDelta !== null
+      ? `<span class="${g.repDelta > 0 ? 'pos' : g.repDelta < 0 ? 'neg' : 'neutral'}">${g.repDelta > 0 ? '+' : ''}${fmt(g.repDelta)}</span>`
       : `<span class="neutral">—</span>`;
     let rankDeltaHtml;
-    if (g.isNew) rankDeltaHtml = `<span class="badge-new">NEW</span>`;
-    else if (g.rankDelta===null) rankDeltaHtml = `<span class="neutral">—</span>`;
-    else if (g.rankDelta>0) rankDeltaHtml = `<span class="rank-up">▲ ${g.rankDelta}</span>`;
-    else if (g.rankDelta<0) rankDeltaHtml = `<span class="rank-dn">▼ ${Math.abs(g.rankDelta)}</span>`;
-    else rankDeltaHtml = `<span class="neutral">—</span>`;
+    if      (g.isNew)              rankDeltaHtml = `<span class="badge-new">NEW</span>`;
+    else if (g.rankDelta === null)  rankDeltaHtml = `<span class="neutral">—</span>`;
+    else if (g.rankDelta > 0)      rankDeltaHtml = `<span class="rank-up">▲ ${g.rankDelta}</span>`;
+    else if (g.rankDelta < 0)      rankDeltaHtml = `<span class="rank-dn">▼ ${Math.abs(g.rankDelta)}</span>`;
+    else                           rankDeltaHtml = `<span class="neutral">—</span>`;
+
+    const saveFileCell = hasSaveFile
+      ? `<td class="savefile-cell">${g.saveFile !== null && g.saveFile !== undefined ? g.saveFile : '—'}</td>`
+      : '';
 
     return `<tr>
       <td class="${rankClass}">#${g.rank}</td>
       <td class="name-cell" title="${esc(displayName)}" style="cursor:pointer" onclick="openModal('${tab}',${g.rank})">${esc(displayName)}</td>
+      ${saveFileCell}
       <td class="rep-cell">${fmt(g.rep)}</td>
       <td class="delta-cell">${repDeltaHtml}</td>
       <td class="rank-delta-cell">${rankDeltaHtml}</td>
@@ -517,9 +628,9 @@ function renderTab(tab) {
 // ── Sort ──────────────────────────────────────────────────
 function setSort(tab, key) {
   const st = state[tab];
-  if (st.sort===key) st.sortAsc = !st.sortAsc;
-  else { st.sort=key; st.sortAsc=false; }
-  document.getElementById(tab+'-sort').value = key;
+  if (st.sort === key) st.sortAsc = !st.sortAsc;
+  else { st.sort = key; st.sortAsc = false; }
+  document.getElementById(tab + '-sort').value = key;
   renderTab(tab);
 }
 
@@ -529,13 +640,12 @@ function getHistory(tab, g) {
   const result = [];
   for (const s of state[tab].snapshots) {
     if (!s.guilds) continue;
-    // match on raw name (as stored in data.json)
-    const key = g.name+'|'+(g.abbr||'');
-    const candidates = s.guilds.filter(x => x.name+'|'+(x.abbr||'')===key);
+    const key = g.name + '|' + (g.abbr || '');
+    const candidates = s.guilds.filter(x => x.name + '|' + (x.abbr || '') === key);
     if (!candidates.length) continue;
-    const best = candidates.reduce((a,b)=>Math.abs(a.rank-lastRank)<=Math.abs(b.rank-lastRank)?a:b);
+    const best = candidates.reduce((a, b) => Math.abs(a.rank - lastRank) <= Math.abs(b.rank - lastRank) ? a : b);
     lastRank = best.rank;
-    result.push({ts:s.ts, rep:best.rep});
+    result.push({ ts: s.ts, rep: best.rep });
   }
   return result;
 }
@@ -571,15 +681,15 @@ function renderModalChart(tab, rank) {
   if (!g) return;
   const fullHistory = getHistory(tab, g);
   const filtered = filterHistory(fullHistory, modalChartDays);
-  const thinned  = thinHistory(filtered);
-  const scoreLabel = tab === 'ranked' ? 'score' : 'rep';
+  const thinned = thinHistory(filtered);
+  const scoreLabel = SCORE_LABEL[tab] || 'rep';
 
   if (filtered.length >= 2) {
     document.getElementById('modal-sub').textContent =
       `${new Date(filtered[0].ts).toLocaleDateString()} — ${new Date(filtered[filtered.length-1].ts).toLocaleDateString()}  ·  ${filtered.length} snapshots`;
   }
 
-  const labels = thinned.map(h => new Date(h.ts).toLocaleDateString(undefined, {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
+  const labels = thinned.map(h => new Date(h.ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }));
   const data   = thinned.map(h => h.rep);
 
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
@@ -604,11 +714,11 @@ function renderModalChart(tab, rank) {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: c => ' '+fmt(c.parsed.y)+' '+scoreLabel } }
+        tooltip: { callbacks: { label: c => ' ' + fmt(c.parsed.y) + ' ' + scoreLabel } }
       },
       scales: {
-        x: { ticks:{color:'#7a8099',maxTicksLimit:8,maxRotation:0}, grid:{color:'rgba(255,255,255,0.04)'} },
-        y: { ticks:{color:'#7a8099',callback:v=>fmt(v)}, grid:{color:'rgba(255,255,255,0.04)'} }
+        x: { ticks: { color: '#7a8099', maxTicksLimit: 8, maxRotation: 0 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#7a8099', callback: v => fmt(v) }, grid: { color: 'rgba(255,255,255,0.04)' } }
       }
     }
   });
@@ -620,6 +730,7 @@ function openModal(tab, rank) {
   const history = getHistory(tab, g);
   const overlay = document.getElementById('modal-overlay');
   const displayName = applyName(tab, g.name);
+  const scoreLabel = SCORE_LABEL[tab] || 'rep';
 
   document.getElementById('modal-title').textContent = displayName;
 
@@ -640,12 +751,15 @@ function openModal(tab, rank) {
     b.classList.toggle('active', parseInt(b.dataset.days) === 0);
   });
 
-  const scoreLabel = tab === 'ranked' ? 'score' : 'rep';
   const data = history.map(h => h.rep);
-  const gains = []; for (let i=1; i<data.length; i++) gains.push(data[i]-data[i-1]);
+  const gains = []; for (let i = 1; i < data.length; i++) gains.push(data[i] - data[i-1]);
   const totalGain = data[data.length-1] - data[0];
-  const maxGain = Math.max(...gains);
-  const avgGain = gains.reduce((a,b)=>a+b,0) / gains.length;
+  const maxGain   = Math.max(...gains);
+  const avgGain   = gains.reduce((a, b) => a + b, 0) / gains.length;
+
+  const saveFileRow = SAVEFILE_TABS.has(tab) && g.saveFile !== null && g.saveFile !== undefined
+    ? `<div class="mstat"><div class="mstat-label">Save File</div><div class="mstat-value">${g.saveFile}</div></div>`
+    : '';
 
   document.getElementById('modal-stats').innerHTML = `
     <div class="mstat"><div class="mstat-label">Total gained</div><div class="mstat-value" style="color:var(--green)">+${fmt(totalGain)}</div></div>
@@ -653,22 +767,23 @@ function openModal(tab, rank) {
     <div class="mstat"><div class="mstat-label">Best single gain</div><div class="mstat-value" style="color:var(--accent)">+${fmt(maxGain)}</div></div>
     <div class="mstat"><div class="mstat-label">Avg per snapshot</div><div class="mstat-value">+${fmt(Math.round(avgGain))}</div></div>
     <div class="mstat"><div class="mstat-label">Current rank</div><div class="mstat-value">#${g.rank}</div></div>
+    ${saveFileRow}
   `;
 
   renderModalChart(tab, rank);
   overlay.classList.add('open');
 }
 
-function closeModal(e) { if (e.target===document.getElementById('modal-overlay')) closeModalDirect(); }
+function closeModal(e) { if (e.target === document.getElementById('modal-overlay')) closeModalDirect(); }
 function closeModalDirect() {
   document.getElementById('modal-overlay').classList.remove('open');
   modalTab = null; modalRank = null;
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 }
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModalDirect(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
 
 // ── Helpers ───────────────────────────────────────────────
-function fmt(n) { return (n||0).toLocaleString(); }
+function fmt(n) { return (n || 0).toLocaleString(); }
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function setStatus(t) { document.getElementById('status-text').textContent = t; }
 function toast(msg) {
@@ -683,8 +798,8 @@ function resetCountdown() {
   clearInterval(countdownInterval);
   countdownInterval = setInterval(() => {
     secondsToRefresh--;
-    const m = String(Math.floor(secondsToRefresh/60)).padStart(2,'0');
-    const s = String(secondsToRefresh%60).padStart(2,'0');
+    const m = String(Math.floor(secondsToRefresh / 60)).padStart(2, '0');
+    const s = String(secondsToRefresh % 60).padStart(2, '0');
     document.getElementById('next-refresh-label').textContent = `Auto-refresh in ${m}:${s}`;
     if (secondsToRefresh <= 0) fetchNow();
   }, 1000);
@@ -692,7 +807,7 @@ function resetCountdown() {
 
 // ── Init ──────────────────────────────────────────────────
 load();
-if (state.guilds.snapshots.length || state.clans.snapshots.length || state.ranked.snapshots.length) {
+if (ALL_TABS.some(t => state[t].snapshots.length)) {
   renderAll();
   const snaps = state[activeTab].snapshots;
   if (snaps.length) setStatus(`Last updated: ${new Date(snaps[snaps.length-1].ts).toLocaleString()}`);
