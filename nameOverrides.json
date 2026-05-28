@@ -1,7 +1,23 @@
 {
   "guilds": {
     "Vermin Vagabonds": "Sanctum"
+    "bruh": "Kingdom of Ludia"
+    "The Reverberation Ensemble": "Severance"
+    "Bank 2": "The Lost Voyagers"
+    "Crest Fleet": "Arbalest"
+    "The Naval Brigade": "The Forsaken Fleet"
 },
-  "clans": {},
+  "clans": {
+    "Exect": "The Exect Tavern"
+    "Paradox": "Strigoi"
+    "Mendacium": "Everthel"
+    "Raid Force": "DragonForce"
+    "Dominating Dragons": "Cressidium"
+    "White Eyes Cultist": "Nanner"
+    "Red Dragons": "Crimson Vanguards"
+    "Emrys": "The Order of Emrys"
+    "nuh uh": "Baskemtbal"
+    "Prominence": "Vanishing Act"
+  },
   "ranked": {}
 }
