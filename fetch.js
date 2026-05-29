@@ -21,7 +21,7 @@ function dayKey(ts) {
 }
 
 function mergeSnapshots(existing, newEntry) {
-  const now = newEntry.ts;
+  const now          = newEntry.ts;
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
   const fiveMinutes  = 5 * 60 * 1000;
 
@@ -43,46 +43,11 @@ function mergeSnapshots(existing, newEntry) {
   return [...dedupedOlder, ...recentWithoutLast, newEntry];
 }
 
-/**
- * Scrolls the page to the bottom in increments, waiting for lazy-loaded
- * content to appear, then pauses to let any final network requests settle.
- */
-async function autoScroll(page) {
-  await page.evaluate(async () => {
-    await new Promise(resolve => {
-      let lastHeight = 0;
-      let staleTicks = 0;
-      let totalTicks = 0;
-      const MAX_STALE  = 3;   // stop after 3 consecutive ticks with no new content
-      const MAX_TICKS  = 60;  // hard cap: 60 × 300 ms = 18 s max
-      const STEP       = 800; // px per tick
-
-      const timer = setInterval(() => {
-        window.scrollBy(0, STEP);
-        const h = document.body.scrollHeight;
-        if (h === lastHeight) {
-          staleTicks++;
-          if (staleTicks >= MAX_STALE) { clearInterval(timer); resolve(); return; }
-        } else {
-          staleTicks = 0;
-          lastHeight = h;
-        }
-        if (++totalTicks >= MAX_TICKS) { clearInterval(timer); resolve(); }
-      }, 300);
-    });
-  });
-  // Let any trailing XHR/fetch calls finish
-  await new Promise(r => setTimeout(r, 1000));
-  // Scroll back to top so innerText is read in order
-  await page.evaluate(() => window.scrollTo(0, 0));
-}
-
 // ── Scrapers ──────────────────────────────────────────────
 
 async function scrapeGuildOrClan(page, url) {
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
   await page.waitForSelector('h2, [class*="guild"], [class*="clan"], [class*="rank"]', { timeout: 15000 }).catch(() => {});
-  await autoScroll(page);
   return page.evaluate(() => {
     const results = [];
     const lines = document.body.innerText.split('\n').map(l => l.trim()).filter(Boolean);
@@ -90,10 +55,10 @@ async function scrapeGuildOrClan(page, url) {
     while (i < lines.length) {
       const rankMatch = lines[i].match(/^#(\d+)$/);
       if (rankMatch) {
-        const rank    = parseInt(rankMatch[1]);
-        const abbr    = lines[i + 1] || '';
-        const name    = lines[i + 2] || '';
-        const repStr  = (lines[i + 3] || '').replace(/,/g, '');
+        const rank     = parseInt(rankMatch[1]);
+        const abbr     = lines[i + 1] || '';
+        const name     = lines[i + 2] || '';
+        const repStr   = (lines[i + 3] || '').replace(/,/g, '');
         const repMatch = repStr.match(/^(\d+)$/);
         if (name && repMatch && abbr.length <= 8 && rank <= 200) {
           results.push({ rank, abbr, name, rep: parseInt(repMatch[1]) });
@@ -109,7 +74,6 @@ async function scrapeGuildOrClan(page, url) {
 async function scrapeRanked(page) {
   await page.goto(URLS.ranked, { waitUntil: 'networkidle2', timeout: 30000 });
   await page.waitForSelector('h2, [class*="player"], [class*="rank"], [class*="user"]', { timeout: 15000 }).catch(() => {});
-  await autoScroll(page);
   return page.evaluate(() => {
     const results = [];
     const lines = document.body.innerText.split('\n').map(l => l.trim()).filter(Boolean);
@@ -117,10 +81,10 @@ async function scrapeRanked(page) {
     while (i < lines.length) {
       const rankMatch = lines[i].match(/^#(\d+)$/);
       if (rankMatch) {
-        const rank      = parseInt(rankMatch[1]);
-        // lines[i+1] is the single-letter avatar initial — skip it
-        const name      = lines[i + 2] || '';
-        const scoreStr  = (lines[i + 3] || '').replace(/,/g, '');
+        const rank       = parseInt(rankMatch[1]);
+        // lines[i+1] is the single-letter/digit avatar initial — skip it
+        const name       = lines[i + 2] || '';
+        const scoreStr   = (lines[i + 3] || '').replace(/,/g, '');
         const scoreMatch = scoreStr.match(/^(\d+)$/);
         if (name && scoreMatch && rank <= 500) {
           results.push({ rank, name, rep: parseInt(scoreMatch[1]) });
@@ -136,46 +100,59 @@ async function scrapeRanked(page) {
 
 /**
  * Scrape a player leaderboard (fame, bounty, grand-navy, assassin-syndicate).
- * Page structure per entry:
+ *
+ * Instead of relying on fixed line offsets (which break if the avatar initial
+ * renders differently in headless Chrome), we anchor on the distinctive
+ * "Save File: N" line and work one line back for the name and one forward
+ * for the score. This is robust regardless of how many lines sit between
+ * the rank number and the save-file line.
+ *
+ * Expected per-entry structure (after filtering blank lines):
  *   #N
- *   <avatar initial>
- *   <player name>
- *   Save File: N
- *   <score>
- *   <label e.g. "Renown" / "Bounty" / "Navy Reputation" / "Syndicate Reputation">
+ *   [optional avatar initial digit]
+ *   PlayerName
+ *   Save File: N    ← anchor
+ *   999,999         ← score  (one line after anchor)
+ *   Renown          ← label  (two lines after anchor)
  */
 async function scrapePlayerBoard(page, url, maxRank = 500) {
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
   await page.waitForSelector('h2, [class*="player"], [class*="rank"], [class*="user"]', { timeout: 15000 }).catch(() => {});
-  await autoScroll(page);
   return page.evaluate((maxRank) => {
     const results = [];
     const lines = document.body.innerText.split('\n').map(l => l.trim()).filter(Boolean);
-    let i = 0;
-    while (i < lines.length) {
+
+    for (let i = 0; i < lines.length; i++) {
       const rankMatch = lines[i].match(/^#(\d+)$/);
-      if (rankMatch) {
-        const rank = parseInt(rankMatch[1]);
-        if (rank > maxRank) { i++; continue; }
-        // i+1: avatar initial — skip
-        const name      = lines[i + 2] || '';
-        const saveFile  = lines[i + 3] || '';
-        const scoreStr  = (lines[i + 4] || '').replace(/,/g, '');
-        const scoreMatch = scoreStr.match(/^(\d+)$/);
-        const saveMatch  = saveFile.match(/Save File:\s*(\d+)/i);
-        if (name && scoreMatch) {
-          results.push({
-            rank,
-            name,
-            saveFile: saveMatch ? parseInt(saveMatch[1]) : null,
-            rep: parseInt(scoreMatch[1]),
-          });
-          i += 6; // #rank, initial, name, save file, score, label
-          continue;
-        }
+      if (!rankMatch) continue;
+
+      const rank = parseInt(rankMatch[1]);
+      if (rank > maxRank) continue;
+
+      // Scan forward (up to 8 lines) for the "Save File:" anchor
+      let sfIdx = -1;
+      for (let j = i + 1; j < Math.min(i + 9, lines.length); j++) {
+        if (/^Save File:\s*\d+$/i.test(lines[j])) { sfIdx = j; break; }
       }
-      i++;
+      if (sfIdx === -1) continue; // no Save File line found for this rank
+
+      const name      = lines[sfIdx - 1] || '';           // line immediately before Save File
+      const saveMatch = lines[sfIdx].match(/Save File:\s*(\d+)/i);
+      const scoreStr  = (lines[sfIdx + 1] || '').replace(/,/g, '');
+      const scoreMatch = scoreStr.match(/^(\d+)$/);
+
+      if (name && scoreMatch) {
+        results.push({
+          rank,
+          name,
+          saveFile: saveMatch ? parseInt(saveMatch[1]) : null,
+          rep:      parseInt(scoreMatch[1]),
+        });
+        // Skip past the label line so the outer loop doesn't re-scan these lines
+        i = sfIdx + 2;
+      }
     }
+
     return results;
   }, maxRank);
 }
