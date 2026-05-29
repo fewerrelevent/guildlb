@@ -3,15 +3,17 @@ const fs = require('fs');
 const path = require('path');
 
 const URLS = {
-  guilds:           'https://leaderboards.arcaneodyssey.dev/guilds',
-  clans:            'https://leaderboards.arcaneodyssey.dev/clans',
-  ranked:           'https://leaderboards.arcaneodyssey.dev/ranked',
-  fame:             'https://leaderboards.arcaneodyssey.dev/fame',
-  bounty:           'https://leaderboards.arcaneodyssey.dev/bounty',
-  grandNavy:        'https://leaderboards.arcaneodyssey.dev/grand-navy',
-  assassinSyndicate:'https://leaderboards.arcaneodyssey.dev/assassin-syndicate',
+  guilds:            'https://leaderboards.arcaneodyssey.dev/guilds',
+  clans:             'https://leaderboards.arcaneodyssey.dev/clans',
+  ranked:            'https://leaderboards.arcaneodyssey.dev/ranked',
+  fame:              'https://leaderboards.arcaneodyssey.dev/fame',
+  bounty:            'https://leaderboards.arcaneodyssey.dev/bounty',
+  grandNavy:         'https://leaderboards.arcaneodyssey.dev/grand-navy',
+  assassinSyndicate: 'https://leaderboards.arcaneodyssey.dev/assassin-syndicate',
 };
 const OUT = path.join(__dirname, 'data.json');
+
+// ── Helpers ───────────────────────────────────────────────
 
 function dayKey(ts) {
   const d = new Date(ts);
@@ -21,7 +23,7 @@ function dayKey(ts) {
 function mergeSnapshots(existing, newEntry) {
   const now = newEntry.ts;
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
-  const fiveMinutes = 5 * 60 * 1000;
+  const fiveMinutes  = 5 * 60 * 1000;
 
   const recentSnaps = existing.filter(s => s.ts >= sevenDaysAgo);
   const olderSnaps  = existing.filter(s => s.ts <  sevenDaysAgo);
@@ -41,9 +43,46 @@ function mergeSnapshots(existing, newEntry) {
   return [...dedupedOlder, ...recentWithoutLast, newEntry];
 }
 
+/**
+ * Scrolls the page to the bottom in increments, waiting for lazy-loaded
+ * content to appear, then pauses to let any final network requests settle.
+ */
+async function autoScroll(page) {
+  await page.evaluate(async () => {
+    await new Promise(resolve => {
+      let lastHeight = 0;
+      let staleTicks = 0;
+      let totalTicks = 0;
+      const MAX_STALE  = 3;   // stop after 3 consecutive ticks with no new content
+      const MAX_TICKS  = 60;  // hard cap: 60 × 300 ms = 18 s max
+      const STEP       = 800; // px per tick
+
+      const timer = setInterval(() => {
+        window.scrollBy(0, STEP);
+        const h = document.body.scrollHeight;
+        if (h === lastHeight) {
+          staleTicks++;
+          if (staleTicks >= MAX_STALE) { clearInterval(timer); resolve(); return; }
+        } else {
+          staleTicks = 0;
+          lastHeight = h;
+        }
+        if (++totalTicks >= MAX_TICKS) { clearInterval(timer); resolve(); }
+      }, 300);
+    });
+  });
+  // Let any trailing XHR/fetch calls finish
+  await new Promise(r => setTimeout(r, 1000));
+  // Scroll back to top so innerText is read in order
+  await page.evaluate(() => window.scrollTo(0, 0));
+}
+
+// ── Scrapers ──────────────────────────────────────────────
+
 async function scrapeGuildOrClan(page, url) {
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
   await page.waitForSelector('h2, [class*="guild"], [class*="clan"], [class*="rank"]', { timeout: 15000 }).catch(() => {});
+  await autoScroll(page);
   return page.evaluate(() => {
     const results = [];
     const lines = document.body.innerText.split('\n').map(l => l.trim()).filter(Boolean);
@@ -51,10 +90,10 @@ async function scrapeGuildOrClan(page, url) {
     while (i < lines.length) {
       const rankMatch = lines[i].match(/^#(\d+)$/);
       if (rankMatch) {
-        const rank = parseInt(rankMatch[1]);
-        const abbr = lines[i + 1] || '';
-        const name = lines[i + 2] || '';
-        const repStr = (lines[i + 3] || '').replace(/,/g, '');
+        const rank    = parseInt(rankMatch[1]);
+        const abbr    = lines[i + 1] || '';
+        const name    = lines[i + 2] || '';
+        const repStr  = (lines[i + 3] || '').replace(/,/g, '');
         const repMatch = repStr.match(/^(\d+)$/);
         if (name && repMatch && abbr.length <= 8 && rank <= 200) {
           results.push({ rank, abbr, name, rep: parseInt(repMatch[1]) });
@@ -70,6 +109,7 @@ async function scrapeGuildOrClan(page, url) {
 async function scrapeRanked(page) {
   await page.goto(URLS.ranked, { waitUntil: 'networkidle2', timeout: 30000 });
   await page.waitForSelector('h2, [class*="player"], [class*="rank"], [class*="user"]', { timeout: 15000 }).catch(() => {});
+  await autoScroll(page);
   return page.evaluate(() => {
     const results = [];
     const lines = document.body.innerText.split('\n').map(l => l.trim()).filter(Boolean);
@@ -77,14 +117,14 @@ async function scrapeRanked(page) {
     while (i < lines.length) {
       const rankMatch = lines[i].match(/^#(\d+)$/);
       if (rankMatch) {
-        const rank = parseInt(rankMatch[1]);
+        const rank      = parseInt(rankMatch[1]);
         // lines[i+1] is the single-letter avatar initial — skip it
-        const name     = lines[i + 2] || '';
-        const scoreStr = (lines[i + 3] || '').replace(/,/g, '');
+        const name      = lines[i + 2] || '';
+        const scoreStr  = (lines[i + 3] || '').replace(/,/g, '');
         const scoreMatch = scoreStr.match(/^(\d+)$/);
         if (name && scoreMatch && rank <= 500) {
           results.push({ rank, name, rep: parseInt(scoreMatch[1]) });
-          i += 5; // #rank, initial, name, score, "Score" label = 5 lines
+          i += 5; // #rank, initial, name, score, label
           continue;
         }
       }
@@ -95,10 +135,10 @@ async function scrapeRanked(page) {
 }
 
 /**
- * Scrape a player leaderboard page (fame, bounty, grand-navy, assassin-syndicate).
+ * Scrape a player leaderboard (fame, bounty, grand-navy, assassin-syndicate).
  * Page structure per entry:
  *   #N
- *   <single-digit avatar initial>
+ *   <avatar initial>
  *   <player name>
  *   Save File: N
  *   <score>
@@ -107,6 +147,7 @@ async function scrapeRanked(page) {
 async function scrapePlayerBoard(page, url, maxRank = 500) {
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
   await page.waitForSelector('h2, [class*="player"], [class*="rank"], [class*="user"]', { timeout: 15000 }).catch(() => {});
+  await autoScroll(page);
   return page.evaluate((maxRank) => {
     const results = [];
     const lines = document.body.innerText.split('\n').map(l => l.trim()).filter(Boolean);
@@ -116,10 +157,10 @@ async function scrapePlayerBoard(page, url, maxRank = 500) {
       if (rankMatch) {
         const rank = parseInt(rankMatch[1]);
         if (rank > maxRank) { i++; continue; }
-        // i+1: avatar initial (single char/digit) — skip
-        const name       = lines[i + 2] || '';
-        const saveFile   = lines[i + 3] || ''; // "Save File: N"
-        const scoreStr   = (lines[i + 4] || '').replace(/,/g, '');
+        // i+1: avatar initial — skip
+        const name      = lines[i + 2] || '';
+        const saveFile  = lines[i + 3] || '';
+        const scoreStr  = (lines[i + 4] || '').replace(/,/g, '');
         const scoreMatch = scoreStr.match(/^(\d+)$/);
         const saveMatch  = saveFile.match(/Save File:\s*(\d+)/i);
         if (name && scoreMatch) {
@@ -139,13 +180,14 @@ async function scrapePlayerBoard(page, url, maxRank = 500) {
   }, maxRank);
 }
 
+// ── Main ──────────────────────────────────────────────────
+
 (async () => {
   console.log('Launching browser...');
   const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
 
-  // ── Existing three ──────────────────────────────────────
   console.log('Scraping guilds...');
   const guilds = await scrapeGuildOrClan(page, URLS.guilds);
   console.log(`  ${guilds.length} guilds`);
@@ -158,7 +200,6 @@ async function scrapePlayerBoard(page, url, maxRank = 500) {
   const ranked = await scrapeRanked(page);
   console.log(`  ${ranked.length} ranked players`);
 
-  // ── New four ────────────────────────────────────────────
   console.log('Scraping fame...');
   const fame = await scrapePlayerBoard(page, URLS.fame);
   console.log(`  ${fame.length} fame entries`);
@@ -191,7 +232,6 @@ async function scrapePlayerBoard(page, url, maxRank = 500) {
   if (fs.existsSync(OUT)) {
     try {
       const raw = JSON.parse(fs.readFileSync(OUT, 'utf8'));
-      // Support old format (snapshots key) and new format
       if (Array.isArray(raw.guilds)) {
         existing = { ...existing, ...raw };
       } else if (Array.isArray(raw.snapshots)) {
@@ -208,7 +248,6 @@ async function scrapePlayerBoard(page, url, maxRank = 500) {
     console.warn('No existing data.json found — starting fresh.');
   }
 
-  // Ensure all keys exist
   for (const k of ['guilds','clans','ranked','fame','bounty','grandNavy','assassinSyndicate']) {
     existing[k] = existing[k] || [];
   }
@@ -227,7 +266,6 @@ async function scrapePlayerBoard(page, url, maxRank = 500) {
     existing.ranked = mergeSnapshots(existing.ranked, { ts: now, guilds: ranked });
     console.log(`Ranked: ${existing.ranked.length} snapshots`);
   }
-  // New four — stored under `guilds` key inside the snapshot (reusing existing diff logic)
   if (fame.length) {
     existing.fame = mergeSnapshots(existing.fame, { ts: now, guilds: fame });
     console.log(`Fame: ${existing.fame.length} snapshots`);
