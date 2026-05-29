@@ -13,6 +13,12 @@ const URLS = {
 };
 const OUT = path.join(__dirname, 'data.json');
 
+const FETCH_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+};
+
 // ── Helpers ───────────────────────────────────────────────
 
 function dayKey(ts) {
@@ -43,7 +49,29 @@ function mergeSnapshots(existing, newEntry) {
   return [...dedupedOlder, ...recentWithoutLast, newEntry];
 }
 
-// ── Scrapers ──────────────────────────────────────────────
+/**
+ * Fetch the raw server-rendered HTML for a URL and return it as plain text.
+ * Strips all HTML tags, removes script/style blocks, and decodes entities.
+ * This bypasses client-side virtual scrolling entirely.
+ */
+async function fetchPageText(url) {
+  const res = await fetch(url, { headers: FETCH_HEADERS });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  const html = await res.text();
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, '\n')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(parseInt(n)));
+}
+
+// ── Puppeteer scrapers (guilds/clans/ranked — no virtual scroll) ──────────
 
 async function scrapeGuildOrClan(page, url) {
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
@@ -82,13 +110,12 @@ async function scrapeRanked(page) {
       const rankMatch = lines[i].match(/^#(\d+)$/);
       if (rankMatch) {
         const rank       = parseInt(rankMatch[1]);
-        // lines[i+1] is the single-letter/digit avatar initial — skip it
         const name       = lines[i + 2] || '';
         const scoreStr   = (lines[i + 3] || '').replace(/,/g, '');
         const scoreMatch = scoreStr.match(/^(\d+)$/);
         if (name && scoreMatch && rank <= 500) {
           results.push({ rank, name, rep: parseInt(scoreMatch[1]) });
-          i += 5; // #rank, initial, name, score, label
+          i += 5;
           continue;
         }
       }
@@ -98,63 +125,64 @@ async function scrapeRanked(page) {
   });
 }
 
-/**
- * Scrape a player leaderboard (fame, bounty, grand-navy, assassin-syndicate).
- *
- * Instead of relying on fixed line offsets (which break if the avatar initial
- * renders differently in headless Chrome), we anchor on the distinctive
- * "Save File: N" line and work one line back for the name and one forward
- * for the score. This is robust regardless of how many lines sit between
- * the rank number and the save-file line.
- *
- * Expected per-entry structure (after filtering blank lines):
- *   #N
- *   [optional avatar initial digit]
- *   PlayerName
- *   Save File: N    ← anchor
- *   999,999         ← score  (one line after anchor)
- *   Renown          ← label  (two lines after anchor)
- */
-async function scrapePlayerBoard(page, url, maxRank = 500) {
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-  await page.waitForSelector('h2, [class*="player"], [class*="rank"], [class*="user"]', { timeout: 15000 }).catch(() => {});
-  return page.evaluate((maxRank) => {
-    const results = [];
-    const lines = document.body.innerText.split('\n').map(l => l.trim()).filter(Boolean);
+// ── HTTP scrapers (fame/bounty/grandNavy/assassinSyndicate) ───────────────
+//
+// These pages use client-side virtual scrolling, so Puppeteer only sees a
+// handful of rows in the DOM at any moment. Instead we fetch the raw
+// server-rendered HTML (which always contains all 100 entries) and parse it
+// before React has a chance to replace it with a virtual list.
+//
+// Entry structure in the server-rendered text (after stripping HTML tags):
+//   #N
+//   <avatar digit>          ← optional, skip if present
+//   PlayerName
+//   Save File: N            ← anchor line
+//   999,999                 ← score
+//   Renown / Bounty / …    ← label
 
-    for (let i = 0; i < lines.length; i++) {
-      const rankMatch = lines[i].match(/^#(\d+)$/);
-      if (!rankMatch) continue;
+async function scrapePlayerBoard(url, maxRank = 500) {
+  const text  = await fetchPageText(url);
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const results = [];
 
-      const rank = parseInt(rankMatch[1]);
-      if (rank > maxRank) continue;
+  for (let i = 0; i < lines.length; i++) {
+    const rankMatch = lines[i].match(/^#(\d+)$/);
+    if (!rankMatch) continue;
 
-      // Scan forward (up to 8 lines) for the "Save File:" anchor
-      let sfIdx = -1;
-      for (let j = i + 1; j < Math.min(i + 9, lines.length); j++) {
-        if (/^Save File:\s*\d+$/i.test(lines[j])) { sfIdx = j; break; }
-      }
-      if (sfIdx === -1) continue; // no Save File line found for this rank
+    const rank = parseInt(rankMatch[1]);
+    if (rank > maxRank) continue;
 
-      const name      = lines[sfIdx - 1] || '';           // line immediately before Save File
-      const saveMatch = lines[sfIdx].match(/Save File:\s*(\d+)/i);
-      const scoreStr  = (lines[sfIdx + 1] || '').replace(/,/g, '');
-      const scoreMatch = scoreStr.match(/^(\d+)$/);
-
-      if (name && scoreMatch) {
-        results.push({
-          rank,
-          name,
-          saveFile: saveMatch ? parseInt(saveMatch[1]) : null,
-          rep:      parseInt(scoreMatch[1]),
-        });
-        // Skip past the label line so the outer loop doesn't re-scan these lines
-        i = sfIdx + 2;
-      }
+    // Scan forward (up to 10 lines) for the "Save File:" anchor
+    let sfIdx = -1;
+    for (let j = i + 1; j < Math.min(i + 11, lines.length); j++) {
+      if (/^Save File:/i.test(lines[j])) { sfIdx = j; break; }
     }
+    if (sfIdx === -1) continue;
 
-    return results;
-  }, maxRank);
+    // The line immediately before the Save File line is the player name.
+    // Guard against it being a bare digit (avatar initial) — if so, step back one more.
+    let nameIdx = sfIdx - 1;
+    const candidateName = lines[nameIdx] || '';
+    const name = /^\d+$/.test(candidateName) ? (lines[nameIdx - 1] || '') : candidateName;
+    if (!name) continue;
+
+    const saveMatch  = lines[sfIdx].match(/Save File:\s*(\d+)/i);
+    const scoreStr   = (lines[sfIdx + 1] || '').replace(/,/g, '');
+    const scoreMatch = scoreStr.match(/^(\d+)$/);
+    if (!scoreMatch) continue;
+
+    results.push({
+      rank,
+      name,
+      saveFile: saveMatch ? parseInt(saveMatch[1]) : null,
+      rep:      parseInt(scoreMatch[1]),
+    });
+
+    // Skip past the label line so we don't re-parse this entry
+    i = sfIdx + 2;
+  }
+
+  return results;
 }
 
 // ── Main ──────────────────────────────────────────────────
@@ -163,8 +191,9 @@ async function scrapePlayerBoard(page, url, maxRank = 500) {
   console.log('Launching browser...');
   const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
-  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+  await page.setUserAgent(FETCH_HEADERS['User-Agent']);
 
+  // Puppeteer for the three boards that render fully in the DOM
   console.log('Scraping guilds...');
   const guilds = await scrapeGuildOrClan(page, URLS.guilds);
   console.log(`  ${guilds.length} guilds`);
@@ -177,23 +206,24 @@ async function scrapePlayerBoard(page, url, maxRank = 500) {
   const ranked = await scrapeRanked(page);
   console.log(`  ${ranked.length} ranked players`);
 
+  await browser.close();
+
+  // Plain HTTP fetch for the four virtual-scroll boards
   console.log('Scraping fame...');
-  const fame = await scrapePlayerBoard(page, URLS.fame);
+  const fame = await scrapePlayerBoard(URLS.fame);
   console.log(`  ${fame.length} fame entries`);
 
   console.log('Scraping bounty...');
-  const bounty = await scrapePlayerBoard(page, URLS.bounty);
+  const bounty = await scrapePlayerBoard(URLS.bounty);
   console.log(`  ${bounty.length} bounty entries`);
 
   console.log('Scraping grand-navy...');
-  const grandNavy = await scrapePlayerBoard(page, URLS.grandNavy);
+  const grandNavy = await scrapePlayerBoard(URLS.grandNavy);
   console.log(`  ${grandNavy.length} grand-navy entries`);
 
   console.log('Scraping assassin-syndicate...');
-  const assassinSyndicate = await scrapePlayerBoard(page, URLS.assassinSyndicate);
+  const assassinSyndicate = await scrapePlayerBoard(URLS.assassinSyndicate);
   console.log(`  ${assassinSyndicate.length} assassin-syndicate entries`);
-
-  await browser.close();
 
   const anyData = [guilds, clans, ranked, fame, bounty, grandNavy, assassinSyndicate].some(a => a.length > 0);
   if (!anyData) {
