@@ -381,8 +381,8 @@ canvas#main-chart { width:100% !important; height:100% !important; }
 <div id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'ao_tracker_v2';
-const DATA_URL = './data.json';
+const STORAGE_KEY  = 'ao_tracker_v2';
+const DATA_URL     = './data.json';
 const OVERRIDES_URL = './nameOverrides.json';
 const MAX_ORBS = 20;
 
@@ -395,7 +395,6 @@ const SCORE_LABEL = {
   fame: 'renown', bounty: 'bounty', grandNavy: 'navy rep', assassinSyndicate: 'syndicate rep',
 };
 
-// Tab display order for button toggle (matches HTML order)
 const ALL_TABS = ['guilds','clans','ranked','fame','bounty','grandNavy','assassinSyndicate'];
 
 const state = {};
@@ -409,6 +408,8 @@ let modalTab = null;
 let modalRank = null;
 let modalChartDays = 0;
 
+// ── Name overrides ────────────────────────────────────────
+// Loaded from nameOverrides.json: { "guilds": { "RawName": "DisplayName" }, ... }
 let nameOverrides = {};
 ALL_TABS.forEach(t => { nameOverrides[t] = {}; });
 
@@ -451,7 +452,7 @@ async function fetchNow() {
     }
 
     ALL_TABS.forEach(t => {
-      if (data[t] && data[t].length) state[t].snapshots = data[t].slice().sort((a,b) => a.ts - b.ts);
+      if (data[t] && data[t].length) state[t].snapshots = data[t].slice().sort((a, b) => a.ts - b.ts);
     });
 
     save();
@@ -571,6 +572,7 @@ function renderTab(tab) {
         ? snaps[snaps.length-1].guilds.map(g => ({...g, repDelta: null, rankDelta: null, isNew: false}))
         : []);
 
+  // Search against display names
   const q = document.getElementById(tab + '-search').value.toLowerCase();
   if (q) rows = rows.filter(g => applyName(tab, g.name).toLowerCase().includes(q) || (g.abbr || '').toLowerCase().includes(q));
 
@@ -604,11 +606,11 @@ function renderTab(tab) {
       ? `<span class="${g.repDelta > 0 ? 'pos' : g.repDelta < 0 ? 'neg' : 'neutral'}">${g.repDelta > 0 ? '+' : ''}${fmt(g.repDelta)}</span>`
       : `<span class="neutral">—</span>`;
     let rankDeltaHtml;
-    if      (g.isNew)              rankDeltaHtml = `<span class="badge-new">NEW</span>`;
-    else if (g.rankDelta === null)  rankDeltaHtml = `<span class="neutral">—</span>`;
-    else if (g.rankDelta > 0)      rankDeltaHtml = `<span class="rank-up">▲ ${g.rankDelta}</span>`;
-    else if (g.rankDelta < 0)      rankDeltaHtml = `<span class="rank-dn">▼ ${Math.abs(g.rankDelta)}</span>`;
-    else                           rankDeltaHtml = `<span class="neutral">—</span>`;
+    if      (g.isNew)             rankDeltaHtml = `<span class="badge-new">NEW</span>`;
+    else if (g.rankDelta === null) rankDeltaHtml = `<span class="neutral">—</span>`;
+    else if (g.rankDelta > 0)     rankDeltaHtml = `<span class="rank-up">▲ ${g.rankDelta}</span>`;
+    else if (g.rankDelta < 0)     rankDeltaHtml = `<span class="rank-dn">▼ ${Math.abs(g.rankDelta)}</span>`;
+    else                          rankDeltaHtml = `<span class="neutral">—</span>`;
 
     const saveFileCell = hasSaveFile
       ? `<td class="savefile-cell">${g.saveFile !== null && g.saveFile !== undefined ? g.saveFile : '—'}</td>`
@@ -640,6 +642,7 @@ function getHistory(tab, g) {
   const result = [];
   for (const s of state[tab].snapshots) {
     if (!s.guilds) continue;
+    // match on raw name as stored in data.json
     const key = g.name + '|' + (g.abbr || '');
     const candidates = s.guilds.filter(x => x.name + '|' + (x.abbr || '') === key);
     if (!candidates.length) continue;
