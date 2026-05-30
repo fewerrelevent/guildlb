@@ -12,6 +12,8 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci
+      - name: Clear corrupted Puppeteer cache
+        run: rm -rf /home/runner/.cache/puppeteer
       - name: Install Puppeteer browser
         run: npx puppeteer browsers install chrome
       - name: Run debug
