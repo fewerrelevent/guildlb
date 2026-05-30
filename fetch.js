@@ -44,47 +44,76 @@ function mergeSnapshots(existing, newEntry) {
 }
 
 /**
- * Parse plain text lines using the Save File: anchor.
- * Works on both innerText and stripped HTML.
+ * Try to extract a leaderboard array from an arbitrary JSON response.
+ * Returns the array if it looks like leaderboard data, otherwise null.
  */
-function parsePlayerBoard(lines, maxRank = 500) {
-  const results = [];
+function extractLeaderboardArray(json) {
+  // Direct array
+  if (Array.isArray(json) && json.length >= 5) {
+    const first = json[0];
+    if (first && typeof first === 'object' && ('username' in first || 'name' in first || 'rank' in first)) {
+      return json;
+    }
+  }
+  // Wrapped: { data: [...] } or { players: [...] } or { entries: [...] } etc.
+  if (json && typeof json === 'object') {
+    for (const key of ['data', 'players', 'entries', 'results', 'leaderboard', 'users']) {
+      if (Array.isArray(json[key]) && json[key].length >= 5) {
+        const first = json[key][0];
+        if (first && typeof first === 'object' && ('username' in first || 'name' in first || 'rank' in first)) {
+          return json[key];
+        }
+      }
+    }
+  }
+  return null;
+}
 
+/**
+ * Map a raw API leaderboard entry to our storage shape.
+ */
+function mapPlayerEntry(item, idx) {
+  return {
+    rank:     item.rank     ?? idx + 1,
+    name:     item.username ?? item.name ?? item.displayName ?? '',
+    saveFile: item.saveFile ?? item.save_file ?? item.saveSlot ?? null,
+    rep:      item.renown   ?? item.bounty   ?? item.reputation
+           ?? item.navyRep  ?? item.syndicateRep
+           ?? item.rep      ?? item.score    ?? item.value ?? 0,
+  };
+}
+
+/**
+ * Parse plain-text lines (from innerText or stripped HTML) using the
+ * "Save File:" anchor. Used as a last-resort fallback.
+ */
+function parsePlayerBoardText(lines, maxRank = 500) {
+  const results = [];
   for (let i = 0; i < lines.length; i++) {
     const rankMatch = lines[i].match(/^#(\d+)$/);
     if (!rankMatch) continue;
-
     const rank = parseInt(rankMatch[1]);
     if (rank > maxRank) continue;
-
-    // Scan forward for "Save File:" anchor
     let sfIdx = -1;
     for (let j = i + 1; j < Math.min(i + 11, lines.length); j++) {
       if (/^Save File:/i.test(lines[j])) { sfIdx = j; break; }
     }
     if (sfIdx === -1) continue;
-
-    // Line before Save File is the name; skip if it's a bare digit (avatar initial)
-    let nameIdx = sfIdx - 1;
-    let name = lines[nameIdx] || '';
-    if (/^\d+$/.test(name)) name = lines[nameIdx - 1] || '';
+    let name = lines[sfIdx - 1] || '';
+    if (/^\d+$/.test(name)) name = lines[sfIdx - 2] || '';
     if (!name) continue;
-
     const saveMatch  = lines[sfIdx].match(/Save File:\s*(\d+)/i);
     const scoreStr   = (lines[sfIdx + 1] || '').replace(/,/g, '');
     const scoreMatch = scoreStr.match(/^(\d+)$/);
     if (!scoreMatch) continue;
-
     results.push({
       rank,
       name,
       saveFile: saveMatch ? parseInt(saveMatch[1]) : null,
       rep:      parseInt(scoreMatch[1]),
     });
-
     i = sfIdx + 2;
   }
-
   return results;
 }
 
@@ -143,31 +172,69 @@ async function scrapeRanked(page) {
 }
 
 /**
- * Scrape a virtual-scroll player board by reading the raw HTML immediately
- * after DOMContentLoaded — before React hydrates and replaces the full list
- * with a virtual scroller. page.content() returns the full server-rendered
- * HTML which always contains all 100 entries.
+ * Scrape a player leaderboard using a three-tier strategy:
+ *
+ * 1. Intercept JSON API responses fired during page load — most reliable
+ *    since we get the raw data before any rendering.
+ * 2. Read window.__NEXT_DATA__ embedded in the page — works for Next.js SSR.
+ * 3. Fall back to innerText parsing — only gets visible DOM rows due to
+ *    virtual scrolling, but better than nothing.
  */
 async function scrapePlayerBoard(page, url, maxRank = 500) {
-  // Use domcontentloaded so we grab the HTML before React runs
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  // ── Tier 1: intercept JSON API responses ──────────────
+  const captured = [];
+  const responseHandler = async (response) => {
+    try {
+      const ct = response.headers()['content-type'] || '';
+      if (!ct.includes('json')) return;
+      if (response.status() !== 200) return;
+      const json = await response.json();
+      const arr  = extractLeaderboardArray(json);
+      if (arr) captured.push({ url: response.url(), arr });
+    } catch(e) {}
+  };
 
-  // Get the raw server-rendered HTML and strip tags to plain text
-  const rawHtml = await page.content();
-  const text = rawHtml
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^>]+>/g, '\n')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(parseInt(n)));
+  page.on('response', responseHandler);
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+  page.off('response', responseHandler);
 
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  return parsePlayerBoard(lines, maxRank);
+  if (captured.length) {
+    // Prefer the largest array found (most complete leaderboard)
+    const best = captured.reduce((a, b) => b.arr.length > a.arr.length ? b : a);
+    console.log(`  [API] ${best.arr.length} entries from ${best.url}`);
+    return best.arr
+      .filter(item => (item.rank ?? 0) <= maxRank)
+      .map(mapPlayerEntry);
+  }
+
+  // ── Tier 2: __NEXT_DATA__ ─────────────────────────────
+  const nextDataStr = await page.evaluate(() => {
+    const el = document.getElementById('__NEXT_DATA__');
+    return el ? el.textContent : null;
+  });
+
+  if (nextDataStr) {
+    try {
+      const nextData  = JSON.parse(nextDataStr);
+      const pageProps = nextData?.props?.pageProps ?? {};
+      for (const val of Object.values(pageProps)) {
+        const arr = extractLeaderboardArray(val);
+        if (arr) {
+          console.log(`  [__NEXT_DATA__] ${arr.length} entries`);
+          return arr
+            .filter(item => (item.rank ?? 0) <= maxRank)
+            .map(mapPlayerEntry);
+        }
+      }
+    } catch(e) {}
+  }
+
+  // ── Tier 3: innerText fallback ────────────────────────
+  console.log('  [fallback] using innerText (may be incomplete due to virtual scroll)');
+  const lines = await page.evaluate(() =>
+    document.body.innerText.split('\n').map(l => l.trim()).filter(Boolean)
+  );
+  return parsePlayerBoardText(lines, maxRank);
 }
 
 // ── Main ──────────────────────────────────────────────────
