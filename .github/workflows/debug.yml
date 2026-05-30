@@ -1,0 +1,18 @@
+name: Debug scraper
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: Install Puppeteer browser
+        run: npx puppeteer browsers install chrome
+      - name: Run debug
+        run: node debug.js
